@@ -1,0 +1,245 @@
+<?php
+	error_reporting(0);
+	$this->load->view('inc/header');
+?>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#myTable thead span').each(function() {
+			var title = $(this).text();
+			$(this).html('<input type="text" placeholder="Search ' + title + '"  />');
+		});
+		var table = $('#myTable').DataTable({
+			"lengthMenu": [
+			[10, 25, 50, -1],
+			[10, 25, 50, 'All']
+			],
+			fixedHeader: true,
+			"searching": true,
+			"paging": true,
+			"ordering": false,
+			"bInfo": true,
+			dom: 'Blfrtip',
+			
+			buttons: [
+			'colvis',
+			{
+				extend: 'pdfHtml5',
+				orientation: 'landscape',
+				pageSize: 'A3',
+				footer: 'true',
+				title: "Invoices List",
+				text: "<i class='fs-14 pg-download'></i> PDF",
+				titleAttr: 'PDF',
+				message: "T.M. Cargo\n  Powered By IT Department \n Date:<?php echo '' . date('Y-m-d'); ?> \n Invoices List \n "
+			},
+			{
+				extend: 'excelHtml5',
+				text: "<i class='fs-14 pg-form'></i> Excel",
+				titleAttr: 'Excel',
+				sheetName: 'Invoices List',
+				exportOptions: {
+					modifier: {
+						page: 'current'
+					}
+				}
+			},
+			{
+				extend: 'copyHtml5',
+				footer: 'true',
+				text: "<i class='fs-14 pg-note'></i> Copy",
+				titleAttr: 'Copy'
+			},
+			{
+				extend: 'print',
+				text: "<i class='fs-14 pg-ui'></i> Print",
+				titleAttr: 'Print',
+				footer: 'true',
+				title: "Invoices List",
+				message: "T.M. Cargo<br>Date:<?php echo '' . date('Y-m-d'); ?> <br>  <br>Invoices List<br>"
+			}
+			]
+		});
+		
+		table.columns().every(function() {
+			var that = this;
+			
+			$('input', this.header()).on('keyup change clear', function() {
+				if (that.search() !== this.value) {
+					that
+					.search(this.value)
+					.draw();
+				}
+			});
+		});
+	});
+</script>
+<!-- START PAGE CONTENT WRAPPER -->
+<div class="page-content-wrapper">
+	<!-- START PAGE CONTENT -->
+	<div class="content">
+		<!-- START JUMBOTRON -->
+		<div class="jumbotron" data-pages="parallax">
+			<div class=" container-fluid container-fixed-lg sm-p-l-0 sm-p-r-0">
+				<div class="inner">
+					<!-- START BREADCRUMB -->
+					<ol class="breadcrumb">
+						<li class="breadcrumb-item">Accounts</li>
+						<li class="breadcrumb-item">Manage Invoices</li>
+						<li class="breadcrumb-item"><mark><?php echo date('Y-m-d H:i:s'); ?></mark></li>
+					</ol>
+					<!-- END BREADCRUMB -->
+				</div>
+			</div>
+		</div>
+		<!-- END JUMBOTRON -->
+		<!-- START CONTAINER FLUID -->
+		<div class="container-fluid container-fixed-lg">
+			<!-- BEGIN PlACE PAGE CONTENT HERE -->
+			<div class="pgn-wrapper" data-position="top" style="top: 48px;" id="msg_div"></div>
+			<div class="row">
+				
+				
+				
+				<div class="col-xl-12 col-lg-12">
+					
+					<!-- START card -->
+					
+					
+					<div class=" container-fluid   container-fixed-lg bg-gray">
+						<div class="row">
+							
+							<div class="col-md-12">
+								<div class="card m-t-10">
+									<div class="card-header  separator">
+										<div class="card-title"><a href="<?php echo base_url(); ?>Invoice/create_invoice" class='btn btn-primary'>New Invoice</a>
+										</div>
+										<div class="form-group-attached">
+											
+											<div class="row clearfix">
+												
+												<div class="col-sm-3">
+													<div class="form-group form-group-default required" id="user_name_div">
+														<form action="<?php echo base_url(); ?>Invoice/date_range" method="post">
+															<label>Start Date</label>
+															<input type="date" class="form-control" id="start_date" name="start_date" required="" value="<?php echo $startdate; ?>">
+														</div>
+													</div>
+													<div class="col-sm-3">
+														<div class="form-group form-group-default required">
+															<label>End Date</label>
+															<input type="date" class="form-control" id="end_date" name="end_date" required="" value="<?php echo $enddate; ?>">
+														</div>
+													</div>
+													<div class="col-sm-3">
+														<button type="submit" class="btn btn-primary" style="height:100%">GO</button>
+													</form>
+												</div>
+											</div>
+											
+											
+										</div>
+									</div>
+									<div class="card-body">
+										<div class="table-responsive m-t-10">
+											<table class="table table-bordered" id="myTable">
+												<thead>
+													<th>Action</th>
+													<th>Deposit</th>
+													<th>Origin</th>
+													<th>Invoice Number</th>
+													<th>CNs</th>
+													<th>Customer Name</th>
+													<th>Invoice Date</th>
+													<th>SC</th>
+													<th>OSA | SD</th>
+													<th>GST</th>
+													<th>Fuel</th>
+													<th>Others</th>
+													<th>Discount</th>
+													<th class="bg-info text-white">Net Total</th>
+													<th>Username</th>
+												</thead>
+												<tbody>
+													<?php
+														$i = 0;
+														if (!empty($invoice_data)) {
+															foreach ($invoice_data as $rows) {
+																$i = $i + 1;
+																
+																echo ("<tr>");
+																echo ("<td><a href='" . base_url() . "Invoice/view_invoice_sheet/" . $rows->invoice_code . "' target='_blank' class='btn btn-info btn-xs'>View V1</a>&nbsp;<a href='" . base_url() . "Invoice/view_invoice_sheet_v2/" . $rows->invoice_code . "' target='_blank' class='btn btn-info btn-xs'>View V2</a></td>");
+																//--------------------------
+																if ($rows->is_payment == 0) {
+																	echo ("<td><a href='" . base_url() . "Invoice/invoice_payment_view/" . $rows->acc_invoice_id . "' class='btn btn-xs btn-info'>Deposit</a></td>");
+																	} else {
+																	echo ("<td>" . $rows->payment_tid . "</td>");
+																}
+																//--------------------------
+																echo ("<td><center>" . $rows->city_full_name . "</center></td>");
+																echo ("<td><center>" . $rows->invoice_code . "</center></td>");
+																echo ("<td><center>" . $rows->invoice_cn . "</center></td>");
+																echo ("<td>" . $rows->customer_name . "</td>");
+																$date = date_create($rows->invoice_date);
+																echo ("<td><center>" . date_format($date, "M-d-Y") . "</center></td>");
+																echo ("<td><center>" . number_format($rows->invoice_sc) . "</center></td>");
+																echo ("<td><center>" . number_format($rows->invoice_osa_sd_total + $rows->invoice_osa) . "</center></td>");
+																//--------------------------
+																if ($rows->invoice_permission == 1) {
+																	echo ("<td><center>" . number_format($rows->invoice_gst) . "</center></td>");
+																	} else if ($rows->invoice_permission == "No") {
+																	echo ("<td><center>0</center></td>");
+																	} else {
+																	echo ("<td><center>0</center></td>");
+																}
+																//--------------------------
+																echo ("<td><center>" . number_format($rows->invoice_fuel) . "</center></td>");
+																if ($rows->other_amount == 0) {
+																	echo ("<td><center>" . number_format($rows->other_amount + $rows->invoice_others) . "</center></td>");
+																	} else {
+																	echo ("<td><center><b>" . $rows->other_name . "</b> " . number_format($rows->other_amount + $rows->invoice_others) . "</center></td>");
+																}
+																//--------------------------
+																
+																echo ("<td><center>" . number_format($rows->discount_amount) . "</center></td>");
+																if ($rows->invoice_permission == 1) {
+																	echo ("<td class='bg-info text-white'>" . number_format($rows->other_amount + $rows->invoice_gst + $rows->invoice_sc + $rows->invoice_osa_sd_total + $rows->fuel_surcharge + $rows->invoice_fuel + $row->others - ($rows->discount_amount)) . "</td>");
+																	} else {
+																	echo ("<td class='bg-info text-white'>" . number_format($rows->other_amount + $rows->invoice_sc + $rows->invoice_osa_sd_total +  $rows->fuel_surcharge + $rows->invoice_fuel + $row->others - ($rows->discount_amount)) . "</td>");
+																}
+																echo ("<td>" . $rows->oper_user_name . "</td>");
+																
+																echo ("</tr>");
+															}
+														} ?>
+												</tbody>
+											</table>
+										</div>
+										
+										
+									</div>
+									
+									
+								</div>
+								
+							</div>
+							<!-- END card -->
+						</div>
+						
+					</div>
+					<!-- END PLACE PAGE CONTENT HERE -->
+				</div>
+				<!-- END CONTAINER FLUID -->
+			</div>
+			<!-- END PAGE CONTENT -->
+			
+			
+			
+			
+		</div>
+		
+	</div>
+	
+	<?php
+		$this->load->view('inc/footer');
+	?>	
