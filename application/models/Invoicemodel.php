@@ -245,25 +245,28 @@ class Invoicemodel extends CI_Model
 		return $res->result();
 	}
 
-	public function Get_Invoice_Active_Customer()
+	public function Get_Invoice_Active_Customer($s_date, $e_date)
 	{
 		$query = "SELECT `acc_customers`.`customer_id` as `id`,`acc_customers`.`customer_name` as `name`,`city_name` as `city`,is_gst
 		FROM `acc_orders`
 		INNER JOIN acc_customers ON acc_customers.customer_id=acc_orders.customer_id
 		INNER JOIN acc_city ON acc_city.city_id=acc_customers.customer_city
-		WHERE  `is_invoice`= 0 AND (`order_pay_mode`='Account' OR `order_pay_mode`='account')
+		WHERE date(order_date) BETWEEN '". $s_date ."' AND '". $e_date ."' 
+		AND `is_invoice`= 0 
+		AND `order_pay_mode` IN ('Account','account')
 		GROUP BY `acc_customers`.`customer_id` order by `acc_customers`.`customer_name`";
 		$res = $this->db->query($query);
 		return $res->result();
 	}
 
-	public function Get_Invoice_Active_Customer_By_Mixture($mixture)
+	public function Get_Invoice_Active_Customer_By_Mixture($mixture, $s_date, $e_date)
 	{
 		$query = "SELECT `acc_customers`.`customer_id` as `id`,`acc_customers`.`customer_name` as `name`,`city_name` as `city`,is_gst
 			FROM `acc_orders`
 			INNER JOIN acc_customers ON acc_customers.customer_id=acc_orders.customer_id
 			INNER JOIN acc_city ON acc_city.city_id=acc_customers.customer_city
-			WHERE `is_invoice`= 0 
+			WHERE date(order_date) BETWEEN '". $s_date ."' AND '". $e_date ."'
+			AND `is_invoice`= 0 
 			AND `order_pay_mode` IN ('Account','account')
 			AND `mixture` IN ('" . str_replace(",", "','", $mixture) . "') 
 			GROUP BY `acc_customers`.`customer_id` order by `acc_customers`.`customer_name`";
@@ -335,7 +338,25 @@ class Invoicemodel extends CI_Model
 
 	public function Get_CN_BY_Customer_ID_And_Date($customer_id, $date, $date_f, $destination, $service)
 	{
-		$query = "SELECT * FROM `acc_orders` 
+		$query = "SELECT
+		`acc_orders_id`,
+		`order_code`,
+		`manual_cn`,
+		`order_date`,
+		`destination_city_name`,
+		`origin_city_name`,
+		`weight`,
+		`pieces`,
+		`order_osa_sd_total`,
+		`consignee_name`,
+		`order_sc`,
+		`order_osa`,
+		`order_gst`,
+		`order_others`,
+		`order_fuel`,
+		`order_faf`
+	FROM
+		`acc_orders`
 		WHERE `is_invoice`= 0 
 		AND `customer_id`= ? 
 		AND date(`order_date`) BETWEEN ? AND ? 
@@ -343,9 +364,7 @@ class Invoicemodel extends CI_Model
 
 		$query .= strlen($destination) > 0 ? " AND `destination_city` IN (" . $destination . ")" : "";
 		$query .= strlen($service) > 0 ? " AND `order_service_type` IN (" . $service . ")" : "";
-
 		$query .= " ORDER BY `order_date`;";
-
 		$res = $this->db->query($query, array($customer_id, $date, $date_f));
 		return $res->result();
 	}

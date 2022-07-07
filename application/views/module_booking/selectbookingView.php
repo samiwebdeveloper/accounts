@@ -438,6 +438,7 @@ $this->load->view('inc/header');
 			});
 		}
 	</script>
+	
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {

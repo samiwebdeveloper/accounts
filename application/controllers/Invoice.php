@@ -76,11 +76,22 @@ class Invoice extends CI_Controller
 
 	public function create_invoice()
 	{
-		$data['invoice_code'] = $this->get_invoice_sheet_code();
-		$data['customer_data'] = $this->Invoicemodel->Get_Invoice_Active_Customer_By_Mixture($_SESSION['user_mixture']);
+		$this->load->view('module_invoice/invoicecreateView');
+	}
+
+	public function create_invoice_data()
+	{
+		$startdate 	  = $this->input->get('start_date');
+		$enddate      = $this->input->get('end_date');
+
+		//$data['invoice_code'] = $this->get_invoice_sheet_code();
+		$data['customer_data'] = $this->Invoicemodel->Get_Invoice_Active_Customer($startdate,$enddate);
 		$data['destinations'] = $this->Invoicemodel->Get_Destinations();
 		$data['services'] = $this->Invoicemodel->Get_Services();
-		$this->load->view('module_invoice/invoicecreateView', $data);
+		echo json_encode($data);
+		//$this->load->view('module_invoice/invoicecreateView');
+
+
 	}
 
 	public function date_range()
@@ -140,43 +151,24 @@ class Invoice extends CI_Controller
 		$invoice_date_f = $this->input->post('invoice_date_f');
 		$invoice_destination = $this->input->post('invoice_destination');
 		$invoice_service = $this->input->post('invoice_service');
-		if ($customer != "" && $invoice_code != "" && $invoice_date != "" && $invoice_date_f != "") {
-			//$this->cal_index($customer);    
-			//$data = array('is_temp_invoice' => 0);
-			//$this->Commonmodel->Update_record('acc_orders', 'is_temp_invoice', $invoice_code, $data);
-			$customer_data = $this->Invoicemodel->Get_CN_BY_Customer_ID_And_Date($customer, $invoice_date, $invoice_date_f, $invoice_destination, $invoice_service);
-			if (!empty($customer_data)) {
-				$i = 0;
-				foreach ($customer_data as $rows) {
-					$i = $i + 1;
-					$data = array('is_temp_invoice' => $invoice_code,
+		// if ($customer != "" && $invoice_code != "" && $invoice_date != "" && $invoice_date_f != "") {
+		$customer_data = $this->Invoicemodel->Get_CN_BY_Customer_ID_And_Date($customer, $invoice_date, $invoice_date_f, $invoice_destination, $invoice_service);
+		
+		/*if (!empty($customer_data)) {
+			foreach ($customer_data as $rows) {
+				$data = array(
+					'is_temp_invoice' => $invoice_code,
 					'modify_by' => $_SESSION['user_id'],
 					'modify_date' => date('Y-m-d H:i:s'),
-					'session' => session_id());
-					$this->Commonmodel->Update_record('acc_orders', 'acc_orders_id', $rows->acc_orders_id, $data);
-					echo ("<tr>");
-					echo ("<td>" . $i . "</td>");
-					echo ("<td>" . $rows->order_date . "</td>");
-					echo ("<td>" . $rows->order_code . " | " . $rows->manual_cn . "</td>");
-					echo ("<td>" . $rows->origin_city_name . "</td>");
-					echo ("<td>" . $rows->destination_city_name . "</td>");
-					echo ("<td>" . $rows->consignee_name . "</td>");
-					echo ("<td>" . $rows->pieces . "</td>");
-					echo ("<td>" . ceil($rows->weight) . "</td>");
-					echo ("<td>" . number_format($rows->order_sc,2) . "</td>");
-					echo ("<td>" . number_format($rows->order_gst,2) . "</td>");
-					echo ("<td>" . number_format($rows->order_osa,2) . "|" . number_format($rows->order_osa_sd_total,2) . "</td>");
-					echo ("<td>" . number_format($rows->order_fuel,2) . "</td>");
-					echo ("<td>" . number_format($rows->order_faf,2) . "</td>");
-					echo ("<td>" . number_format($rows->order_others,2) . "</td>");
-					echo ("<td><button onclick='remove_from_invoice(" . $rows->order_code . ")' class='btn btn-danger btn-sm'>Release</button></td>");
-					echo ("</tr>");
-				}
-			}
-		} else {
-			echo ("<tr><td><p>Something Went Wrong.</p></td></tr>");
-		}
+					'session' => session_id()
+				);
+				$this->Commonmodel->Update_record('acc_orders', 'acc_orders_id', $rows->acc_orders_id, $data);
+			}*/
+
+			echo json_encode($customer_data);
+		
 	}
+
 
 	public function summary()
 	{
@@ -384,6 +376,11 @@ class Invoice extends CI_Controller
 				'modify_by'                  => 0,
 				'modify_date'                => '0000-00-00 00:00:00'
 			);
+			
+			echo "<pre>";
+			print_r ($data);
+			echo "</pre>";
+			exit;
 			$invoice_id = $this->Commonmodel->Insert_record('acc_invoice', $data);
 		}
 		//--- INSERT INTO Invoice Main----END
