@@ -94,6 +94,7 @@ class Invoice extends CI_Controller
 
 	}
 
+	
 	public function date_range()
 	{
 		$startdate 	  = $this->input->post('start_date');
@@ -321,6 +322,12 @@ class Invoice extends CI_Controller
 
 	public function complete_invoice()
 	{
+		
+		$remaining_order_code_array=$_POST['order_code'];
+		foreach ($remaining_order_code_array as $item) {
+			echo $item;
+		}
+		
 		$customer 	 	= $this->input->post('customer');
 		$permission 	= $this->input->post('permission');
 		$invoice_code 	= $this->input->post('invoice_code');

@@ -126,7 +126,7 @@ $this->load->view('inc/header');
 									</div>
 									<div class="card-body">
 										<button class='pull-right btn btn-primary' onclick="complete_invoice()" id="cp_inv">Complete Invoice</button>
-										<input type="hidden" id="arrData" name="arrData" />
+										<input type = "hidden" id = "arrData" name = "arrData" />
 										<div class="table-responsive">
 											<table class="table table-bordered" id="data_list" name="data_panel">
 												<thead>
@@ -202,9 +202,8 @@ $this->load->view('inc/header');
 		}
 		var data_arr = [];
 		var order_others = '';
-		var js_obj = "";
-		var table = "";
-
+		var js_obj ="";
+		var table ="";
 		function rate_cus() {
 			//$('#customer').change(function(e){
 			$('#data_panel').DataTable().destroy();
@@ -224,7 +223,7 @@ $this->load->view('inc/header');
 			});
 			var check = "Pass";
 			var customer = "";
-
+			
 			var invoice_code = '<?php echo $invoice_code; ?>';
 			var invoice_date = "";
 			var invoice_date_f = "";
@@ -281,8 +280,32 @@ $this->load->view('inc/header');
 				},
 				success: function(data) {
 					$('tbody').html("");
-					var obj = $.parseJSON(data);
-					for (var count = 0; count < obj.length; count++) {
+					// js_obj = $.parseJSON(data);
+					$('#arrData').val(data);
+					data_array();
+					$.ajax({
+						url: "<?php echo base_url(); ?>Invoice/summary",
+						type: "POST",
+						data: mydata,
+						success: function(data) {
+							console.log(data.splice(0, 1));
+							$("#summary_data").html(data);
+						}
+					});
+					$("#msg_div").html("");
+				}
+			});
+			document.getElementById("cp_inv").focus();
+			//--------------------------------End
+		}
+		//);			
+	
+		function data_array() {
+
+			var obj =  $.parseJSON($('#arrData').val());
+	
+				
+			for (var count = 0; count < obj.length; count++) {
 						if (obj[count].order_others == null) {
 							order_others = "0.00";
 						} else {
@@ -303,26 +326,13 @@ $this->load->view('inc/header');
 							'order_fuel': obj[count].order_fuel,
 							'order_faf': obj[count].order_faf,
 							'order_others': order_others,
-							'action': '<button  id="' + count + '" onclick="remove_from_invoice()" class="btn btn-danger  btn-xs ">Release</button>'
+							'action': '<button  id="'+count+'" onclick="remove_from_invoice('+count + ')" class="btn btn-danger  btn-xs ">Release</button>'
 						};
 						data_arr.push(sub_array);
 					}
-
-					data_array(data_arr);
-				}
-			});
-			document.getElementById("cp_inv").focus();
-			//--------------------------------End
-		}
-		//);			
-
-		function data_array(get_array) {
-			$("#summary_data").html("");
-			$("#summary_data").html("<table class='table'><tr><td>Total Cns</td><td>"+get_array.length+"</td></tr><tr><td>Total SC </td><td></td></tr><tr><td>Total GST </td><td></td></tr><tr><td>Total OSA|SD </td><td></td></tr><tr><td>Total Fuel </td><td></td></tr><tr><td>Total FAF </td><td></td></tr><tr><td>Total Others </td><td></td></tr><tr><tr><td>NET</td><td></td></tr><tr></table>");
-
+					
 			$('#data_list').DataTable().destroy();
-			table = $('#data_list').DataTable({
-
+			var table = $('#data_list').DataTable({
 				lengthMenu: [
 					[25, 50, -1],
 					[25, 50, "All"]
@@ -378,36 +388,21 @@ $this->load->view('inc/header');
 					}
 				]
 			});
-
-
 		}
 
-		function remove_from_invoice() {
-			index = $(this).closest('tr').index();
-			data_arr.splice(index, 1)
-			data_array(data_arr)
-			// console.log(data_arr)
-			// console.log("arr_lenght_before="+data_arr.length)
-			// if (data_arr.length==1) {
-			// 	data_arr.splice(0, 1)
-			// } else {
-			// 	data_arr.splice(index, 1)
-			// }
-			// if (index==1) {
-			// 	data_arr.splice(index-1, 1)
-			// }else{
-			// 	data_arr.splice(index, 1)
-			// }
-			// console.log("arr_lenght_after="+data_arr.length)
-			// con
-			// console.log(order_code);
-			//  console.log(index);
-			// 			$('#arrData').val(JSON.stringify(splice_array));
-			// 			// console.log(obj_recall);
+		function remove_from_invoice(index) {
 
-			// data_array();
-			// $('#arrData').val("");
-			// table.draw();
+		
+			var obj_recall =  $.parseJSON($('#arrData').val());
+			 console.log(obj_recall);
+			// var splice_array=;
+			console.log(obj_recall.splice(index, 1));
+
+// 			$('#arrData').val(JSON.stringify(splice_array));
+// 			// console.log(obj_recall);
+		
+// 				data_array();
+// table.draw();
 			// table.draw();
 			// var invoice_code = '<?php echo $invoice_code; ?>';
 			// var invoice_date = '';
@@ -509,22 +504,50 @@ $this->load->view('inc/header');
 			// 	}
 			// });
 		}
-
+	
 		function complete_invoice() {
-			console.log(data_arr)
-			var remaining_order_code=[];
-			for (let index = 0; index < data_arr.length; index++) {
-				var get_order_code=data_arr[index].order_code.split("|")
-				remaining_order_code.push(get_order_code[0])	
+			var check = "Pass";
+			var customer = "";
+			var permission = "";
+			var invoice_code = "<?php echo $invoice_code; ?>";
+			var discount_amount = $("#discount_amount").val();
+			var fuel_amount = $("#fuel_amount").val();
+			var other = $("#other").val();
+			var other_amount = $("#other_amount").val();
+			var remark = $("#remark").val();
+
+			//------------Customer
+			if ($("#customer").val() != "") {
+				customer = $("#customer").val();
+				$("#customer_div").css("border-color", "rgba(0, 0, 0, 0.07)");
+			} else {
+				$("#customer_div").css("border-color", "red");
+				$("#customer").focus();
+				check = "Fail";
 			}
-			console.log(remaining_order_code)
-			
-		
+			//--------------------------------End
+
+			//------------Permission
+			if ($("#permission").val() != "") {
+				permission = $("#permission").val();
+				$("#permission_div").css("border-color", "rgba(0, 0, 0, 0.07)");
+			} else {
+				$("#permission_div").css("border-color", "red");
+				$("#permission").focus();
+				check = "Fail";
+			}
 			//--------------------------------End
 			//-------Checking Conditions---------
-			
+			if (check != "Fail") {
 				var mydata = {
-					order_code: remaining_order_code,
+					customer: customer,
+					permission: permission,
+					invoice_code: invoice_code,
+					other: other,
+					discount_amount: discount_amount,
+					other_amount: other_amount,
+					fuel_amount: fuel_amount,
+					remark: remark
 				};
 				$("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-warning'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Please Wait .</div></div>");
 				$.ajax({
@@ -532,22 +555,20 @@ $this->load->view('inc/header');
 					type: "POST",
 					data: mydata,
 					success: function(data) {
-						console.log(data)
-						// location.replace("<?php echo base_url(); ?>Invoice/create_invoice");
+						location.replace("<?php echo base_url(); ?>Invoice/create_invoice");
 					}
 				});
 				$("#cn").val("");
-			
+			}
 		}
 	</script>
-
 	<script type="text/javascript">
 		$(document).ready(function() {
 
 			var mydata = {
-				start_date: $('#invoice_date').val(),
-				end_date: $('#invoice_date_f').val()
-			};
+					start_date: $('#invoice_date').val(),
+					end_date: $('#invoice_date_f').val()
+				};
 
 			$.ajax({
 				url: "<?php echo base_url(); ?>Invoice/create_invoice_data",

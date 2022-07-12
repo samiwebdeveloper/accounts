@@ -146,7 +146,7 @@ class Collection extends CI_Controller
 		}
 		$this->db->trans_complete();
 
-		echo $collection_code."|".$sheet_id;
+		echo $collection_code . "|" . $sheet_id;
 	}
 
 	public function submitted()
@@ -208,8 +208,11 @@ class Collection extends CI_Controller
 
 	public function undelivered()
 	{
+		$this->load->view('module_collection/undeliveredcollectionView');
+	}
+	public function undelivered_load()
+	{
 		$data['undelivered_collect'] = $this->Collectionmodel->get_undelivered_collection();
-
-		$this->load->view('module_collection/undeliveredcollectionView', $data);
+		echo json_encode($data['undelivered_collect']);
 	}
 }
