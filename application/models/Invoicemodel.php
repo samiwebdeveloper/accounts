@@ -342,21 +342,24 @@ class Invoicemodel extends CI_Model
 		`acc_orders_id`,
 		`order_code`,
 		`manual_cn`,
-		`order_date`,
+		DATE_FORMAT(order_date, '%Y-%m-%d') AS `order_date`,
 		`destination_city_name`,
 		`origin_city_name`,
 		`weight`,
 		`pieces`,
 		`order_osa_sd_total`,
 		`consignee_name`,
+		`order_rate`,
 		`order_sc`,
 		`order_osa`,
 		`order_gst`,
 		`order_others`,
 		`order_fuel`,
-		`order_faf`
+		`order_faf`,
+		acc_services.service_name
 	FROM
 		`acc_orders`
+	INNER JOIN acc_services ON acc_orders.order_service_type = acc_services.service_id
 		WHERE `is_invoice`= 0 
 		AND `customer_id`= ? 
 		AND date(`order_date`) BETWEEN ? AND ? 
@@ -366,6 +369,7 @@ class Invoicemodel extends CI_Model
 		$query .= strlen($service) > 0 ? " AND `order_service_type` IN (" . $service . ")" : "";
 		$query .= " ORDER BY `order_date`;";
 		$res = $this->db->query($query, array($customer_id, $date, $date_f));
+		
 		return $res->result();
 	}
 

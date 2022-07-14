@@ -110,7 +110,7 @@ $this->load->view('inc/header');
 												<textarea name="remark" id="remark" class="form-control" tabindex="10" rows="6"></textarea>
 											</div>
 											<div class="form-group">
-												<button class="btn btn-primary" type="button" tabindex="11" onclick="rate_cus();">Fetch CNs</button>
+												<button class="btn btn-primary" tabindex="11" onclick="rate_cus();">Fetch CNs</button>
 											</div>
 										</form>
 									</div>
@@ -125,10 +125,10 @@ $this->load->view('inc/header');
 										</div>
 									</div>
 									<div class="card-body">
-										<button class='pull-right btn btn-primary' onclick="complete_invoice()" id="cp_inv">Complete Invoice</button>
+										<button class='pull-right btn btn-primary' type="submit" onclick="complete_invoice()" id="cp_inv">Complete Invoice</button>
 										<input type="hidden" id="arrData" name="arrData" />
 										<div class="table-responsive">
-											<table class="table table-bordered" id="data_list" name="data_panel">
+											<table width="100%" class="table table-bordered" id="data_list" name="data_panel">
 												<thead>
 													<tr>
 														<th>Sr</th>
@@ -137,6 +137,8 @@ $this->load->view('inc/header');
 														<th>Origin</th>
 														<th>Dest</th>
 														<th>Consignee</th>
+														<th>Service</th>
+														<th>Rate</th>
 														<th>Pcs</th>
 														<th>Weigh</th>
 														<th>Sc</th>
@@ -239,7 +241,6 @@ $this->load->view('inc/header');
 				$("#customer").focus();
 				check = "Fail";
 			}
-
 			//------------Date
 			if ($("#invoice_date").val() != "") {
 				invoice_date = $("#invoice_date").val();
@@ -249,7 +250,6 @@ $this->load->view('inc/header');
 				$("#invoice_date").focus();
 				check = "Fail";
 			}
-
 			//------------FDate
 			if ($("#invoice_date_f").val() != "") {
 				invoice_date_f = $("#invoice_date_f").val();
@@ -283,23 +283,31 @@ $this->load->view('inc/header');
 					$('tbody').html("");
 					var obj = $.parseJSON(data);
 					for (var count = 0; count < obj.length; count++) {
-						if (obj[count].order_others == null) {
+						if (obj[count].order_others == null ) {
 							order_others = "0.00";
 						} else {
 							order_others;
 						}
+						if (obj[count].order_osa_sd_total == null ) {
+							order_osa_sd_total = "0.00";
+						} else {
+							order_osa_sd_total;
+						}
 						var sub_array = {
 							'sr': (count + 1),
 							'order_date': obj[count].order_date,
-							'order_code': obj[count].order_code + '|' + obj[count].manual_cn,
+							'order_code': obj[count].order_code + ' | ' + obj[count].manual_cn,
 							'Origin': obj[count].origin_city_name,
 							'Destination': obj[count].destination_city_name,
 							'Consignee': obj[count].consignee_name,
+							'order_rate': obj[count].order_rate,
+							'service_name': obj[count].service_name,
 							'Pieces': obj[count].pieces,
 							'Weight': obj[count].weight,
 							'order_sc': obj[count].order_sc,
 							'order_gst': obj[count].order_gst,
 							'order_osa': obj[count].order_osa,
+							'order_osa_sd':order_osa_sd_total,
 							'order_fuel': obj[count].order_fuel,
 							'order_faf': obj[count].order_faf,
 							'order_others': order_others,
@@ -307,7 +315,6 @@ $this->load->view('inc/header');
 						};
 						data_arr.push(sub_array);
 					}
-
 					data_array(data_arr);
 				}
 			});
@@ -317,8 +324,31 @@ $this->load->view('inc/header');
 		//);			
 
 		function data_array(get_array) {
+			var total_sc = 0;
+			var total_gst = 0;
+			var total_osa_sd = 0;
+			var osa_sd = 0;
+			var total_fuel = 0;
+			var total_faf = 0;
+			var total_other = 0;
+			var total_pieces = 0;
+			var total_weight = 0;
+			for (let index = 0; index < get_array.length; index++) {
+				console.log(get_array[index].order_faf);
+				total_pieces = parseInt(total_pieces) + parseInt(get_array[index].Pieces)
+				total_weight = parseInt(total_weight) + parseInt(get_array[index].Weight)
+				total_sc = parseInt(total_sc) + parseInt(get_array[index].order_sc)
+				total_gst = parseInt(total_gst) + parseInt(get_array[index].order_gst)
+				total_osa_sd = parseInt(total_osa_sd) + parseInt(get_array[index].order_osa)
+				osa_sd = parseInt(total_osa_sd) + parseInt(get_array[index].order_osa_sd)
+				total_fuel = parseInt(total_fuel) + parseInt(get_array[index].order_fuel)
+				total_faf = parseInt(total_faf) + parseInt(get_array[index].order_faf)
+				total_other = parseInt(total_other) + parseInt(get_array[index].order_others)
+			}
+
+			var net = total_sc + total_gst + total_osa_sd + total_fuel + total_faf + total_other  + osa_sd
 			$("#summary_data").html("");
-			$("#summary_data").html("<table class='table'><tr><td>Total Cns</td><td>"+get_array.length+"</td></tr><tr><td>Total SC </td><td></td></tr><tr><td>Total GST </td><td></td></tr><tr><td>Total OSA|SD </td><td></td></tr><tr><td>Total Fuel </td><td></td></tr><tr><td>Total FAF </td><td></td></tr><tr><td>Total Others </td><td></td></tr><tr><tr><td>NET</td><td></td></tr><tr></table>");
+			$("#summary_data").html("<table class='table table_data'><tr><td >Total CNs</td><td class='total_cn'>" + get_array.length + "</td></tr><tr><td>Total Pieces </td><td class='total_pieces'>" + total_pieces + "</td></tr><tr><td>Total Weight </td><td class='total_weight'>" + total_weight + "</td></tr><tr><td>Total SC </td><td class='total_sc'>" + total_sc + "</td></tr><tr><td>Total Gst </td><td class='total_gst'>" + total_gst + "</td></tr><tr><td>Total OSA</td><td class='total_osa'>" + total_osa_sd + "</td></tr><tr><td>Total SD</td><td class='total_osa'>" + osa_sd + "</td></tr><tr><td>Total Fuel </td><td class='total_fuel'>" + total_fuel + "</td></tr><tr><td>Total FAF </td><td class='total_faf'>" + total_faf + "</td></tr><tr><td>Total Others </td><td class='total_other'>" + total_other + "</td></tr><tr><tr><td>NET</td><td class='total_net'>" + net + "</td></tr><tr></table>");
 
 			$('#data_list').DataTable().destroy();
 			table = $('#data_list').DataTable({
@@ -349,6 +379,13 @@ $this->load->view('inc/header');
 					{
 						data: "Consignee"
 					},
+					{
+						data: "service_name"
+					},
+					{
+						data: "order_rate"
+					},
+
 					{
 						data: "Pieces"
 					},
@@ -386,158 +423,42 @@ $this->load->view('inc/header');
 			index = $(this).closest('tr').index();
 			data_arr.splice(index, 1)
 			data_array(data_arr)
-			// console.log(data_arr)
-			// console.log("arr_lenght_before="+data_arr.length)
-			// if (data_arr.length==1) {
-			// 	data_arr.splice(0, 1)
-			// } else {
-			// 	data_arr.splice(index, 1)
-			// }
-			// if (index==1) {
-			// 	data_arr.splice(index-1, 1)
-			// }else{
-			// 	data_arr.splice(index, 1)
-			// }
-			// console.log("arr_lenght_after="+data_arr.length)
-			// con
-			// console.log(order_code);
-			//  console.log(index);
-			// 			$('#arrData').val(JSON.stringify(splice_array));
-			// 			// console.log(obj_recall);
-
-			// data_array();
-			// $('#arrData').val("");
-			// table.draw();
-			// table.draw();
-			// var invoice_code = '<?php echo $invoice_code; ?>';
-			// var invoice_date = '';
-			// var invoice_date_f = "";
-			// //------------Date
-			// if ($("#invoice_date").val() != "") {
-			// 	invoice_date = $("#invoice_date").val();
-			// 	$("#invoice_date_div").css("border-color", "rgba(0, 0, 0, 0.07)");
-			// } else {
-			// 	$("#invoice_date_div").css("border-color", "red");
-			// 	$("#invoice_date").focus();
-			// 	check = "Fail";
-			// }
-			// //------------FDate
-			// if ($("#invoice_date_f").val() != "") {
-			// 	invoice_date_f = $("#invoice_date_f").val();
-			// 	$("#invoice_date_f_div").css("border-color", "rgba(0, 0, 0, 0.07)");
-			// } else {
-			// 	$("#invoice_date_f_div").css("border-color", "red");
-			// 	$("#invoice_date_f").focus();
-			// 	check = "Fail";
-			// }
-			// //-------Checking Conditions---------
-			// var mydata = {
-			// 	cn: cn,
-			// 	invoice_code: invoice_code,
-			// 	invoice_date: invoice_date,
-			// 	invoice_date_f: invoice_date_f
-			// };
-			// $("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-warning'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Please Wait .</div></div>");
-			// $.ajax({
-			// 	url: "<?php echo base_url(); ?>Invoice/release_from_invoice",
-			// 	type: "POST",
-			// 	data: mydata,
-			// 	success: function(data) {
-			// 		$("#autoload").html(data);
-
-			// 		// $('#data_panel').DataTable().destroy();
-
-			// 		// var table = $('#data_panel').DataTable({
-			// 		// 	"lengthMenu": [
-			// 		// 		[-1, 10, 25, 50],
-			// 		// 		["All", 10, 25, 50]
-			// 		// 	],
-			// 		// 	fixedHeader: true,
-			// 		// 	"searching": true,
-			// 		// 	"paging": true,
-			// 		// 	"ordering": true,
-			// 		// 	"bInfo": true,
-			// 		// 	dom: 'Blfrtip',
-			// 		// 	buttons: [{
-			// 		// 			extend: 'pdfHtml5',
-			// 		// 			orientation: 'Portrait',
-			// 		// 			pageSize: 'A4',
-			// 		// 			footer: 'true',
-			// 		// 			title: "Invoices List",
-			// 		// 			text: "<i class='fs-14 pg-download'></i> PDF",
-			// 		// 			titleAttr: 'PDF',
-			// 		// 			message: "T.M. Cargo\n  Powered By IT Department \n Date:<?php echo '' . date('Y-m-d'); ?> \n Invoices List \n "
-			// 		// 		},
-			// 		// 		{
-			// 		// 			extend: 'excelHtml5',
-			// 		// 			text: "<i class='fs-14 pg-form'></i> Excel",
-			// 		// 			titleAttr: 'Excel',
-			// 		// 			sheetName: 'Invoices List',
-			// 		// 			exportOptions: {
-			// 		// 				modifier: {
-			// 		// 					page: 'current'
-			// 		// 				}
-			// 		// 			}
-			// 		// 		},
-			// 		// 		{
-			// 		// 			extend: 'copyHtml5',
-			// 		// 			footer: 'true',
-			// 		// 			text: "<i class='fs-14 pg-note'></i> Copy",
-			// 		// 			titleAttr: 'Copy'
-			// 		// 		},
-			// 		// 		{
-			// 		// 			extend: 'print',
-			// 		// 			text: "<i class='fs-14 pg-ui'></i> Print",
-			// 		// 			titleAttr: 'Print',
-			// 		// 			footer: 'true',
-			// 		// 			title: "Invoices List",
-			// 		// 			message: "T.M. Cargo<br>Date:<?php echo '' . date('Y-m-d'); ?> <br>  <br>Invoices List<br>"
-			// 		// 		}
-			// 		// 	]
-			// 		// });
-
-			// 		$("#summary_data").html("");
-			// 		$.ajax({
-			// 			url: "<?php echo base_url(); ?>Invoice/summary",
-			// 			type: "POST",
-			// 			data: mydata,
-			// 			success: function(data) {
-			// 				$("#summary_data").html(data);
-			// 			}
-			// 		});
-			// 		$("#msg_div").html("");
-			// 	}
-			// });
 		}
 
+		$("form").on("submit", function(event) {
+			event.preventDefault();
+		});
+
 		function complete_invoice() {
-			console.log(data_arr)
-			var remaining_order_code=[];
-			for (let index = 0; index < data_arr.length; index++) {
-				var get_order_code=data_arr[index].order_code.split("|")
-				remaining_order_code.push(get_order_code[0])	
-			}
-			console.log(remaining_order_code)
-			
-		
-			//--------------------------------End
-			//-------Checking Conditions---------
-			
-				var mydata = {
-					order_code: remaining_order_code,
-				};
-				$("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-warning'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Please Wait .</div></div>");
-				$.ajax({
-					url: "<?php echo base_url(); ?>Invoice/complete_invoice",
-					type: "POST",
-					data: mydata,
-					success: function(data) {
-						console.log(data)
-						// location.replace("<?php echo base_url(); ?>Invoice/create_invoice");
-					}
-				});
-				$("#cn").val("");
-			
+			var form_array = $("form").serialize();
+			var form_data_array = form_array.split("&");
+			var TableData = new Array();
+			$('.table_data tr').each(function(row, tr) {
+				TableData[row] = {
+					"0": $(tr).find('td:eq(0)').text(),
+					"1": $(tr).find('td:eq(1)').text()
+				}
+			});
+			TableData.splice(10, 1)
+			TableData.pop()
+
+			var mydata = {
+				order_acc: data_arr,
+				summary: TableData,
+				form_data_array: form_data_array,
+			};
+			$("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-warning'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Please Wait .</div></div>");
+			$.ajax({
+				url: "<?php echo base_url(); ?>Invoice/complete_invoice",
+				type: "POST",
+				data: mydata,
+				success: function(data) {
+					console.log(data)
+					// location.replace("<?php echo base_url(); ?>Invoice/create_invoice");
+				}
+			});
+			$("#cn").val("");
+
 		}
 	</script>
 

@@ -15,7 +15,7 @@ class Invoice extends CI_Controller
 
 	public function index()
 	{
-		//echo($_SESSION['origin_id']);	
+		//echo($_SESSION['origin_id']);
 		$data['sub_nav_active'] = "Accounts";
 		$data['nav_active'] = "Invoice";
 		$data['event_name'] = "Invoice";
@@ -31,7 +31,7 @@ class Invoice extends CI_Controller
 
 	public function in_payment()
 	{
-		//echo($_SESSION['origin_id']);	
+		//echo($_SESSION['origin_id']);
 		$data['sub_nav_active'] = "Accounts";
 		$data['nav_active'] = "Invoice";
 		$data['event_name'] = "Invoice";
@@ -88,13 +88,14 @@ class Invoice extends CI_Controller
 		$data['customer_data'] = $this->Invoicemodel->Get_Invoice_Active_Customer($startdate,$enddate);
 		$data['destinations'] = $this->Invoicemodel->Get_Destinations();
 		$data['services'] = $this->Invoicemodel->Get_Services();
-		echo json_encode($data);
+		$encoded = json_encode($data, JSON_NUMERIC_CHECK);
+		echo $encoded;
 		//$this->load->view('module_invoice/invoicecreateView');
 
 
 	}
 
-	
+
 	public function date_range()
 	{
 		$startdate 	  = $this->input->post('start_date');
@@ -154,7 +155,7 @@ class Invoice extends CI_Controller
 		$invoice_service = $this->input->post('invoice_service');
 		// if ($customer != "" && $invoice_code != "" && $invoice_date != "" && $invoice_date_f != "") {
 		$customer_data = $this->Invoicemodel->Get_CN_BY_Customer_ID_And_Date($customer, $invoice_date, $invoice_date_f, $invoice_destination, $invoice_service);
-		
+
 		/*if (!empty($customer_data)) {
 			foreach ($customer_data as $rows) {
 				$data = array(
@@ -167,7 +168,7 @@ class Invoice extends CI_Controller
 			}*/
 
 			echo json_encode($customer_data);
-		
+
 	}
 
 
@@ -322,52 +323,56 @@ class Invoice extends CI_Controller
 
 	public function complete_invoice()
 	{
-		
-		$remaining_order_code_array=$_POST['order_code'];
-		foreach ($remaining_order_code_array as $item) {
-			echo $item;
+
+		$remaining_order_code_array=$_POST['order_acc'];
+		$summary_data=$_POST['summary'];
+		$form_data_array=$_POST['form_data_array'];
+
+		$array_form=[];
+		foreach ($form_data_array as $value) {
+			$array_form[]=explode("=",$value);
 		}
-		
-		$customer 	 	= $this->input->post('customer');
-		$permission 	= $this->input->post('permission');
-		$invoice_code 	= $this->input->post('invoice_code');
-		$other 	        = $this->input->post('other');
-		$other_amount 	= $this->input->post('other_amount');
-		$discount_amount = $this->input->post('discount_amount');
-		$fuel_amount 	= $this->input->post('fuel_amount');
-		$remark 		= $this->input->post('remark');
-		$date 			= date('Y-m-d H:i:s');
-		$total_gst		= 0;
-		$total_cn		= 0;
-		$total_sc 		= 0;
-		$total_osa_sd   = 0;
-		$total_sp 		= 0;
-		$total_cash 	= 0;
-		$total_fuel 	= 0;
-		$total_flyer 	= 0;
-		$total_amount 	= 0;
-		$invoice_id 	= 0;
-		$osa_sd         = 0;
-		$total_others	= 0;
-		$total_osa		= 0;
-		$total_fuel		= 0;
-		$total_faf		= 0;
+
+		$customer 	 	    = $array_form[2][1]; // dropdown value
+		$permission 	    = $array_form[3][1]; //might be hidden value
+		$invoice_code 	    = $this->get_invoice_sheet_code();
+		$other 	            = $array_form[4][1]; // dropdown
+		$other_amount 	    = $array_form[5][1]; //input
+		$discount_amount    = $array_form[6][1]; //input
+		$fuel_amount 	    =  $summary_data[7][1]; //summary
+		$remark 		    = $array_form[7][1]; //input
+		$date 			    = date('Y-m-d H:i:s');
+		$total_gst		    = $summary_data[4][1];
+		$total_cn		    = $summary_data[0][1];
+		$total_sc 		    = $summary_data[3][1];
+		$total_osa_sd       = $summary_data[6][1];
+		$total_fuel 	    = $summary_data[7][1];
+		$total_amount 	    = $summary_data[10][1];
+		$invoice_id 	    = 0;
+		$osa_sd             = $summary_data[6][1];
+		$total_others	    = $summary_data[9][1];
+		$total_osa		    = $summary_data[5][1];
+		$total_fuel		    =  $summary_data[7][1];
+		$total_faf		    = $summary_data[8][1];
+	
 		if ($invoice_code != "" && $customer != "" && $permission != "") {
-			//--- INSERT INTO Invoice Main
-			$this->set_barcode($invoice_code);
 			$data = array(
 				'customer_id'                => $customer,
 				'invoice_code'               => $invoice_code,
 				'payment_date'               => "0000-00-00 00:00:00",
-				'invoice_cn'                 => 0,
+				'invoice_cn'                 => $total_cn,
 				'invoice_permission'         => $permission,
-				'invoice_gst'                => 0,
+				'invoice_gst'                => $total_gst,
 				'other_name'                 => $other,
-				'invoice_sc'                 => 0,
-				'invoice_osa_sd_total'       => 0,
+				'invoice_sc'                 => $total_sc,
+				'invoice_osa_sd_total'       => $total_osa_sd ,
 				'other_amount'               => $other_amount,
 				'fuel_surcharge'             => $fuel_amount,
 				'discount_amount'            => $discount_amount,
+				'invoice_osa'                => $total_osa,
+				'invoice_fuel'               => $total_fuel,
+				'invoice_others'             => $other_amount,
+				'invoice_faf'                => $total_faf,
 				'invoice_ajustment_amount'   => 0,
 				'is_inovice_ajustment'       => 0,
 				'ajustment_narration'        => "",
@@ -383,123 +388,66 @@ class Invoice extends CI_Controller
 				'modify_by'                  => 0,
 				'modify_date'                => '0000-00-00 00:00:00'
 			);
-			
-			echo "<pre>";
-			print_r ($data);
-			echo "</pre>";
-			exit;
-			$invoice_id = $this->Commonmodel->Insert_record('acc_invoice', $data);
-		}
-		//--- INSERT INTO Invoice Main----END
-		$cn_data = $this->Commonmodel->Get_record_by_condition('acc_orders', 'is_temp_invoice', $invoice_code);
-		//	echo "<pre>";print_r($cn_data);exit();
-		if (!empty($cn_data)) {
-			$i = 0;
-			foreach ($cn_data as $rows) {
-				$i = $i + 1;
-				$total_cn 	  = $total_cn + 1;
-				$total_gst 	  = $total_gst + $rows->order_gst;
-				$total_sc 	  = $total_sc + $rows->order_sc;
-				$total_osa_sd = $total_osa_sd + $rows->order_osa_sd_total;
-				$total_osa	  = $total_osa + $rows->order_osa;
-				$total_fuel	  = $total_fuel + $rows->order_fuel;
-				$total_others = $total_others + $rows->order_others;
-				$total_faf	  = $total_faf + $rows->order_faf;
-				$total_rate   = $rows->rate_id;
-				$rate_type    = $rows->order_rate_type;
-				$dest_zone    = $rows->destination_zone;
-				$rateee = $rows->order_rate;
-				$service_name = "";
-				$service_data = $this->Commonmodel->Get_record_by_condition_array('acc_services', 'service_id', $rows->order_service_type);
-				$service_name = $service_data[0]['service_name'];
-				/*if($rate_type!="DW"){
-						$zone_rate_data=$this->Commonmodel->Get_record_by_condition_array('saimtech_rate', 'rate_id', $total_rate);
-						$service_data=$this->Commonmodel->Get_record_by_condition_array('acc_services', 'service_id', $zone_rate_data[0]['service_id']);
-						$service_name=$service_data[0]['service_name'];
-						if($dest_zone=="A"){
-						$rateee=$zone_rate_data[0]['sc_add_rate'];
-						} else if($dest_zone=="B"){
-						$rateee=$zone_rate_data[0]['sz_add_rate'];    
-						} else if($dest_zone=="C"){
-						$rateee=$zone_rate_data[0]['dz_add_rate'];    
-						} else if($dest_zone=="D"){
-						$rateee=$zone_rate_data[0]['zz_add_rate'];     
-						}    
-						} else {
-						$destination_rate_data=$this->Commonmodel->Get_record_by_condition_array('saimtech_destination_rate', 'dest_rate_id', $total_rate);
-						$service_data=$this->Commonmodel->Get_record_by_condition_array('acc_services', 'service_id', $destination_rate_data[0]['service_id']);
-						$service_name=$service_data[0]['service_name'];
-						$rateee=$destination_rate_data[0]['city_add_rate'];
-					}*/
-				//$customer_data=$this->Commonmodel->Get_record_by_condition_array('acc_customers', 'customer_id', $rows->customer_id);
-				//--- INSERT INTO Invoice Detail
-				if ($rows->manual_cn != "" && $rows->manual_cn != null) {
-					$mm_cn = $rows->manual_cn;
-				} else {
-					$mm_cn = $rows->order_code;
-				}
-				if ($rows->order_osa_sd_total > 0) {
-					$osa_sd = $rows->order_osa_sd_total;
-				} else {
-					$osa_sd = 0;
-				}
 
+			$invoice_id = $this->Commonmodel->Insert_record('acc_invoice', $data);
+		
+		}
+	
+
+		if (!empty($remaining_order_code_array)) {
+			$i = 0;
+			foreach ($remaining_order_code_array as $rows) {
+				 $order_code_mcn=explode("|",$rows['order_code']);
+				 $order_code=$order_code_mcn[0];
+				 $manual_cn=$order_code_mcn[1];
+				 $origin=$rows['Origin'];
+				 $destination=$rows['Destination'];
+				 $order_date=$rows['order_date'];
+				 $order_rate=$rows['order_rate'];
+				 $service_name=$rows['service_name'];
+				 $Consignee=$rows['Consignee'];
+				 $Pieces=$rows['Pieces'];
+				 $Weight=$rows['Weight'];
+				 $order_sc=$rows['order_sc'];
+				 $order_gst=$rows['order_gst'];
+				 $order_osa=$rows['order_osa'];
+				 $order_fuel=$rows['order_fuel'];
+				 $order_faf=$rows['order_faf'];
+				 $order_others=$rows['order_others'];
+
+				if ($manual_cn != "" && $manual_cn != null) {
+					$mm_cn = $manual_cn;
+				} else {
+					$mm_cn = $order_code;
+				}
+			
 				$data = array(
 					'invoice_id'        => $invoice_id,
-					'cn'                => $rows->order_code,
+					'cn'                => $order_code,
 					'manual_cn'         => $mm_cn,
-					'origin'            => $rows->origin_city_name,
-					'destination_name'  => $rows->destination_city_name,
-					//'consignee_detail'  =>$rows->consignee_name."<br>".$rows->customer_reference_no."<br>".$rows->consignee_address,
-					'consignee_detail'  => $rows->consignee_name,
-					'pcs'               => $rows->pieces,
-					'weight'            => $rows->weight,
-					'rate'              => $rateee,
-					'sc'                => $rows->order_sc,
+					'origin'            => $origin,
+					'destination_name'  => $destination,
+					'consignee_detail'  => $Consignee,
+					'pcs'               => $Pieces,
+					'weight'            => $Weight,
+					'rate'              => $order_rate,
+					'sc'                => $order_sc,
 					'osa_sd'            => $osa_sd,
-					'osa'				=> $rows->order_osa,
-					'fuel'				=> $rows->order_fuel,
-					'others'			=> $rows->order_others,
-					'gst'               => $rows->order_gst,
-					'date' 				=> $rows->order_date,
-					'faf' 				=> $rows->order_faf,
+					'osa'				=> $order_osa,
+					'fuel'				=> $order_fuel,
+					'others'			=> $order_others,
+					'gst'               => $order_gst,
+					'date' 				=> $order_date,
+					'faf' 				=> $order_faf,
 					'serivce_name' 		=> $service_name,
 					'current_table' 	=> 'acc_orders',
 					'created_by' 		=> $_SESSION['user_id'],
 					'created_date' 		=> $date
 				);
 				$invoice_detail_id = $this->Commonmodel->Insert_record('acc_invoice_detail', $data);
-
-				//--- INSERT INTO Invoice Detail----END	
-				//--- UPDATE SaimTech Order
-				$data = array(
-					'is_temp_invoice' 	=> '',
-					'is_invoice' 		=> 1,
-					'invoice_id' 		=> $invoice_code
-				);
-				$this->Commonmodel->Update_record('acc_orders', 'order_code', $rows->order_code, $data);
-				//--- UPDATE SaimTech Order----END
+				echo $this->db->last_query();
 			}
 		}
-		/*$total_order_gst  = ((($total_sc)*($customer_data[0]['gst']))/100);
-					if($total_osa_sd!=0){
-					$total_osa_sd_gst  = ((($total_osa_sd)*($customer_data[0]['gst']))/100);  
-					}
-				$final_total_gst  = 	$total_order_gst + $total_osa_sd_gst;*/
-		$final_total_gst  = 	$total_gst;
-		//--- UPDATE SaimTech Invoice
-		$data = array(
-			'invoice_cn'			=> $total_cn,
-			'invoice_sc'			=> $total_sc,
-			'invoice_osa_sd_total'  => $total_osa_sd,
-			'invoice_others'		=> $total_others,
-			'invoice_osa'			=> $total_osa,
-			'invoice_fuel'			=> $total_fuel,
-			'invoice_gst' 			=> $total_gst,
-			'invoice_faf'			=> $total_faf
-		);
-		$this->Commonmodel->Update_record('acc_invoice', 'invoice_code', $invoice_code, $data);
-		//--- UPDATE SaimTech Invoice----END
 		echo ("<p class='alert alert-success'>Successfully Done</p>");
 	}
 
@@ -694,7 +642,7 @@ class Invoice extends CI_Controller
 						} else if ($sz_return_formula == 'FIX') {
 							$order_pre = $sz_return_rate;
 							$data = array('order_return_sc'  => $order_pre);
-							//End--SameZone---------------------        
+							//End--SameZone---------------------
 							//-----SameCity---------------------
 						} else if ($order_type == 'WC') {
 							if ($sc_return_formula == 'PER') {
@@ -725,7 +673,7 @@ class Invoice extends CI_Controller
 				}
 				//2=============Get Order Sc From acc_orders By Customer ID AND RTS
 				//Loop
-				//2.1=============Update Order Return Sc INTO acc_orders By ORDER ID 
+				//2.1=============Update Order Return Sc INTO acc_orders By ORDER ID
 				//END=============Update Order Return Sc INTO acc_orders By ORDER ID
 				//ENDLoop
 			}

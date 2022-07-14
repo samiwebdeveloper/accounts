@@ -26,7 +26,7 @@ date_default_timezone_set('Asia/Karachi');
 // $root = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") ."://".$_SERVER['HTTP_HOST'];
 // $root .= dirname($_SERVER['SCRIPT_NAME']);
 // $config['base_url']    = $root.'/';
-$config['base_url']    = 'http://localhost:88/cargo/accounts/';
+$config['base_url']    = 'http://localhost/cargo/accounts/';
 /*
 |--------------------------------------------------------------------------
 | Index File
