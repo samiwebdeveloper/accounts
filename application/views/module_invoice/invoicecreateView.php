@@ -128,6 +128,7 @@ $this->load->view('inc/header');
 										<button class='pull-right btn btn-primary' type="submit" onclick="complete_invoice()" id="cp_inv">Complete Invoice</button>
 										<input type="hidden" id="arrData" name="arrData" />
 										<div class="table-responsive">
+											
 											<table width="100%" class="table table-bordered" id="data_list" name="data_panel">
 												<thead>
 													<tr>
@@ -358,7 +359,39 @@ $this->load->view('inc/header');
 					[25, 50, "All"]
 				],
 				dom: 'Blfrtip',
-				buttons: ['colvis'],
+				buttons: [
+                    'colvis',
+                    {
+                        extend: 'excelHtml5',
+                        text: "<i class='fs-14 pg-form'></i> Excel",
+                        titleAttr: 'Excel',
+                        sheetName: 'Summary',
+                        exportOptions: {
+                            columns: ':visible'
+                        },
+
+                    },
+                    {
+                        extend: 'copyHtml5',
+                        footer: 'true',
+                        text: "<i class='fs-14 pg-note'></i> Copy",
+                        titleAttr: 'Copy',
+                        exportOptions: {
+                            columns: ':visible'
+                        },
+                    },
+                    {
+                        extend: 'print',
+                        text: "<i class='fs-14 pg-ui'></i> Print",
+                        titleAttr: 'Print',
+                        footer: 'true',
+                        title: 'Summary',
+                        exportOptions: {
+                            columns: ':visible'
+                        },
+
+                    },
+                ],
 				data: data_arr,
 				order: [],
 				columns: [{

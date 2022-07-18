@@ -15,9 +15,13 @@
 		
 		public function index(){
 			
+			$this->load->view('dashboardView');
+		}
+		public function load_data(){
+			
 			$data['cns']=$this->Bookingmodel->Get_CNs_to_Hard_Check_Summary();
 			$data['chkd_cns']=$this->Bookingmodel->Get_CNs_Hard_Checked_Summary();
-			$this->load->view('dashboardView',$data);
+			echo json_encode($data);
 		}
 		
 		public function mail(){

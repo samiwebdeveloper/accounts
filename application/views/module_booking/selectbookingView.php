@@ -173,7 +173,7 @@ $this->load->view('inc/header');
 												</select>
 											</div>
 											<!-- <button class='pull-right btn btn-primary' onclick="fetch_bookings()" id="btn_fetch_bookings">Fetch Booking</button> -->
-											<input type="button" id="testing" class='pull-right btn btn-primary' value="Fetch Booking">
+											<input type="button" id="load_data" class='pull-right btn btn-primary' value="Fetch Booking">
 											<input type="reset" class='pull-right btn btn-secondry'>
 										</form>
 									</div>
@@ -272,7 +272,7 @@ $this->load->view('inc/header');
 			};
 			$('#data_panel').DataTable().destroy();
 			$.ajax({
-				url: "testing",
+				url: "load_data",
 				type: "POST",
 				data: data,
 				beforeSend: function() {
@@ -295,12 +295,12 @@ $this->load->view('inc/header');
 
 					// add customer
 					for (let customer = 0; customer < customer_data.length; customer++) {
-						$("#cusotmer_op").after("<option value='" + customer_data[customer].customer_id + "' > [ " + customer_data[customer].customer_name + " ] </option>");
+						$("#cusotmer_op").after("<option value='" + customer_data[customer].customer_id + "' > " + customer_data[customer].customer_name + "  </option>");
 					}
 
 					// add service
 					for (let service = 0; service < shipment_types.length; service++) {
-						$("#service_op").after("<option value='" + shipment_types[service].service_id + "' > [ " + shipment_types[service].service_name + " ] </option>");
+						$("#service_op").after("<option value='" + shipment_types[service].service_id + "' >  " + shipment_types[service].service_name + " </option>");
 					}
 
 					// add table
@@ -341,7 +341,39 @@ $this->load->view('inc/header');
 							[25, 50, "All"]
 						],
 						dom: 'Blfrtip',
-						buttons: ['colvis'],
+						buttons: [
+							'colvis',
+							{
+								extend: 'excelHtml5',
+								text: "<i class='fs-14 pg-form'></i> Excel",
+								titleAttr: 'Excel',
+								sheetName: 'Summary',
+								exportOptions: {
+									columns: ':visible'
+								},
+
+							},
+							{
+								extend: 'copyHtml5',
+								footer: 'true',
+								text: "<i class='fs-14 pg-note'></i> Copy",
+								titleAttr: 'Copy',
+								exportOptions: {
+									columns: ':visible'
+								},
+							},
+							{
+								extend: 'print',
+								text: "<i class='fs-14 pg-ui'></i> Print",
+								titleAttr: 'Print',
+								footer: 'true',
+								title: 'Summary',
+								exportOptions: {
+									columns: ':visible'
+								},
+
+							},
+						],
 						data: data_arr,
 						order: [],
 						columns: [{
@@ -395,14 +427,14 @@ $this->load->view('inc/header');
 				}
 			});
 		}
-
+		// for Edit Cn
 		function myfunction(a, b) {
 			var cn = a;
 			var mcn = b;
-			window.open('edit_booking_view/' + cn);
+			window.open('edit_booking_view/' + mcn);
 		}
-
-		$("#testing").click(function() {
+		// load js data table
+		$("#load_data").click(function() {
 			load_data();
 		});
 
@@ -415,7 +447,6 @@ $this->load->view('inc/header');
 				order_id: val,
 				mcn: mcn
 			};
-			console.log("btn_okay_" + val);
 			$.ajax({
 				url: "<?php echo base_url(); ?>Booking/Booking/mark_cn_corrected",
 				type: "POST",
@@ -426,8 +457,10 @@ $this->load->view('inc/header');
 				success: function(data) {
 					$("#btn_okay_" + val).html('&#10003')
 					if (data == 1) {
-						$("#btn_okay_" + val).html("&#9998").addClass('btn-success').removeClass('btn-info');
+						$("#btn_okay_" + val).html("&#10003").addClass('btn-success').removeClass('btn-info');
 						$("#btn_edit_" + val).attr("disabled", true).css("cursor", "not-allowed");
+						$("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-success'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button><strong> Successfully! </strong> Manual CN " + a + " has been marked.</div></div>");
+
 					} else {
 						$("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Manual CN " + a + " <strong>can't</strong> be marked as corrected now.</div></div>");
 					}
@@ -438,7 +471,7 @@ $this->load->view('inc/header');
 			});
 		}
 	</script>
-	
+
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {

@@ -136,7 +136,7 @@
 		$cn = $this->uri->segment(4);
 
 		if ($cn > 0) {
-			$data['order_data'] = $this->Commonmodel->Get_record_by_condition('acc_orders', 'order_code', $cn);
+			$data['order_data'] = $this->Commonmodel->Get_record_by_condition('acc_orders', 'order_id', $cn);
 			if (sizeof($data['order_data']) > 0) {
 				$data['shipment_types'] = $this->Commonmodel->Get_record_by_condition('acc_services', 'is_enable', 1);
 				$data['customer_data'] = $this->Commonmodel->Get_record_by_condition('acc_customers', 'is_enable', 1);
@@ -188,9 +188,10 @@
 		}
 		
 		public function mark_cn_corrected(){
-		echo	$order_id = $this->input->post('order_id');
+		$order_id = $this->input->post('mcn');
+		
 			$data = null;
-			$cn=$this->Commonmodel->Get_record_by_condition_array('acc_orders', 'order_code', $order_id);
+			$cn=$this->Commonmodel->Get_record_by_condition_array('acc_orders', 'order_id', $order_id);
 			
 			
 			//==============Get Origin City ID & Name=====================
@@ -238,9 +239,12 @@
 			'is_hardchecked' 				=>  1
 			);
 			$rtn = $this->Commonmodel->Update_record('acc_orders','order_id',$order_id, $data);
+			
 			$this->db->trans_complete();
 			$this->update_cn_rates($order_id);
-			echo json_encode($rtn);
+			// echo json_encode($rtn);
+			echo $rtn;
+
 		}
 		
 		public function get_cong_detail(){
@@ -269,7 +273,7 @@
 			}
 		}
 		
-		public function testing(){
+		public function load_data(){
 			$data['sub_nav_active']="Select";
 			$data['nav_active']="Booking";	
 			$data['event_name']="Select Booking";			

@@ -303,7 +303,7 @@
 			AND `is_invoice` = 0
 			AND `origin_city` IN (SELECT `city_id` FROM `acc_city` WHERE `mixture` IN ('".str_replace(",","','",$_SESSION['user_mixture'])."'))
 			GROUP BY DATE(`order_date`), `origin_city_name`, `order_pay_mode`
-			ORDER BY DATE(`order_date`) DESC, `origin_city_name`, `order_pay_mode` limit 2,2";
+			ORDER BY DATE(`order_date`) DESC, `origin_city_name`, `order_pay_mode` ";
 			$res = $this->db->query($query);
 			return $res->result_array();
 		}
@@ -321,7 +321,7 @@
 			AND `is_invoice` = 0
 			AND `origin_city` IN (SELECT `city_id` FROM `acc_city` WHERE `mixture` IN ('".str_replace(",","','",$_SESSION['user_mixture'])."'))
 			GROUP BY DATE(`order_date`), `origin_city_name`, `order_pay_mode`
-			ORDER BY DATE(`order_date`) DESC, `origin_city_name`, `order_pay_mode` limit 2,2";
+			ORDER BY DATE(`order_date`) DESC, `origin_city_name`, `order_pay_mode` ";
 			$res = $this->db->query($query);
 			return $res->result_array();
 		}

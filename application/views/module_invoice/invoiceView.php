@@ -39,10 +39,8 @@ $this->load->view('inc/header');
 					titleAttr: 'Excel',
 					sheetName: 'Invoices List',
 					exportOptions: {
-						modifier: {
-							page: 'current'
-						}
-					}
+						columns: ':visible'
+					},
 				},
 				{
 					extend: 'copyHtml5',
@@ -185,7 +183,7 @@ $this->load->view('inc/header');
 															echo ("<td><center>" . $rows->invoice_code . "</center></td>");
 															echo ("<td><center>" . $rows->invoice_cn . "</center></td>");
 															echo ("<td>" . $rows->customer_name . "</td>");
-															echo ("<td>" .$rows->customer_account_no . "</td>");
+															echo ("<td>" . $rows->customer_account_no . "</td>");
 															$date = date_create($rows->invoice_date);
 															echo ("<td><center>" . date_format($date, "M-d-Y") . "</center></td>");
 															echo ("<td><center>" . number_format($rows->invoice_sc) . "</center></td>");
@@ -215,7 +213,7 @@ $this->load->view('inc/header');
 																echo ("<td class='bg-info text-white'>" . number_format($rows->invoice_osa + $rows->other_amount + $rows->invoice_sc + $rows->invoice_osa_sd_total +  $rows->fuel_surcharge + $rows->invoice_fuel + $row->others + $rows->invoice_faf - ($rows->discount_amount)) . "</td>");
 															}
 															echo ("<td>" . number_format($rows->t_pcs) . "</td>");
-															echo ("<td>" . number_format($rows->t_wgt,2) . "</td>");
+															echo ("<td>" . number_format($rows->t_wgt, 2) . "</td>");
 															echo ("<td>" . $rows->reference_name . "</td>");
 															echo ("<td>" . $rows->oper_user_name . "</td>");
 															echo ("</tr>");
