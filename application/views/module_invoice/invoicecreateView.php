@@ -128,7 +128,7 @@ $this->load->view('inc/header');
 										<button class='pull-right btn btn-primary' type="submit" onclick="complete_invoice()" id="cp_inv">Complete Invoice</button>
 										<input type="hidden" id="arrData" name="arrData" />
 										<div class="table-responsive">
-											
+
 											<table width="100%" class="table table-bordered" id="data_list" name="data_panel">
 												<thead>
 													<tr>
@@ -209,6 +209,8 @@ $this->load->view('inc/header');
 		var table = "";
 
 		function rate_cus() {
+			$('#data_list').DataTable().destroy();
+
 			//$('#customer').change(function(e){
 			$('#data_panel').DataTable().destroy();
 			$("#summary_data").html("");
@@ -284,12 +286,12 @@ $this->load->view('inc/header');
 					$('tbody').html("");
 					var obj = $.parseJSON(data);
 					for (var count = 0; count < obj.length; count++) {
-						if (obj[count].order_others == null ) {
+						if (obj[count].order_others == null) {
 							order_others = "0.00";
 						} else {
 							order_others;
 						}
-						if (obj[count].order_osa_sd_total == null ) {
+						if (obj[count].order_osa_sd_total == null) {
 							order_osa_sd_total = "0.00";
 						} else {
 							order_osa_sd_total;
@@ -308,11 +310,11 @@ $this->load->view('inc/header');
 							'order_sc': obj[count].order_sc,
 							'order_gst': obj[count].order_gst,
 							'order_osa': obj[count].order_osa,
-							'order_osa_sd':order_osa_sd_total,
+							'order_osa_sd': order_osa_sd_total,
 							'order_fuel': obj[count].order_fuel,
 							'order_faf': obj[count].order_faf,
 							'order_others': order_others,
-							'action': '<button  id="' + count + '" onclick="remove_from_invoice()" class="btn btn-danger  btn-xs ">Release</button>'
+							'action': '<button  id="btn_' + count + '" onclick="remove_from_invoice()" class="btn btn-danger  btn-xs ">Release</button>'
 						};
 						data_arr.push(sub_array);
 					}
@@ -335,7 +337,6 @@ $this->load->view('inc/header');
 			var total_pieces = 0;
 			var total_weight = 0;
 			for (let index = 0; index < get_array.length; index++) {
-				console.log(get_array[index].order_faf);
 				total_pieces = parseInt(total_pieces) + parseInt(get_array[index].Pieces)
 				total_weight = parseInt(total_weight) + parseInt(get_array[index].Weight)
 				total_sc = parseInt(total_sc) + parseInt(get_array[index].order_sc)
@@ -347,7 +348,7 @@ $this->load->view('inc/header');
 				total_other = parseInt(total_other) + parseInt(get_array[index].order_others)
 			}
 
-			var net = total_sc + total_gst + total_osa_sd + total_fuel + total_faf + total_other  + osa_sd
+			var net = total_sc + total_gst + total_osa_sd + total_fuel + total_faf + total_other + osa_sd
 			$("#summary_data").html("");
 			$("#summary_data").html("<table class='table table_data'><tr><td >Total CNs</td><td class='total_cn'>" + get_array.length + "</td></tr><tr><td>Total Pieces </td><td class='total_pieces'>" + total_pieces + "</td></tr><tr><td>Total Weight </td><td class='total_weight'>" + total_weight + "</td></tr><tr><td>Total SC </td><td class='total_sc'>" + total_sc + "</td></tr><tr><td>Total Gst </td><td class='total_gst'>" + total_gst + "</td></tr><tr><td>Total OSA</td><td class='total_osa'>" + total_osa_sd + "</td></tr><tr><td>Total SD</td><td class='total_osa'>" + osa_sd + "</td></tr><tr><td>Total Fuel </td><td class='total_fuel'>" + total_fuel + "</td></tr><tr><td>Total FAF </td><td class='total_faf'>" + total_faf + "</td></tr><tr><td>Total Others </td><td class='total_other'>" + total_other + "</td></tr><tr><tr><td>NET</td><td class='total_net'>" + net + "</td></tr><tr></table>");
 
@@ -360,38 +361,38 @@ $this->load->view('inc/header');
 				],
 				dom: 'Blfrtip',
 				buttons: [
-                    'colvis',
-                    {
-                        extend: 'excelHtml5',
-                        text: "<i class='fs-14 pg-form'></i> Excel",
-                        titleAttr: 'Excel',
-                        sheetName: 'Summary',
-                        exportOptions: {
-                            columns: ':visible'
-                        },
+					'colvis',
+					{
+						extend: 'excelHtml5',
+						text: "<i class='fs-14 pg-form'></i> Excel",
+						titleAttr: 'Excel',
+						sheetName: 'Summary',
+						exportOptions: {
+							columns: ':visible'
+						},
 
-                    },
-                    {
-                        extend: 'copyHtml5',
-                        footer: 'true',
-                        text: "<i class='fs-14 pg-note'></i> Copy",
-                        titleAttr: 'Copy',
-                        exportOptions: {
-                            columns: ':visible'
-                        },
-                    },
-                    {
-                        extend: 'print',
-                        text: "<i class='fs-14 pg-ui'></i> Print",
-                        titleAttr: 'Print',
-                        footer: 'true',
-                        title: 'Summary',
-                        exportOptions: {
-                            columns: ':visible'
-                        },
+					},
+					{
+						extend: 'copyHtml5',
+						footer: 'true',
+						text: "<i class='fs-14 pg-note'></i> Copy",
+						titleAttr: 'Copy',
+						exportOptions: {
+							columns: ':visible'
+						},
+					},
+					{
+						extend: 'print',
+						text: "<i class='fs-14 pg-ui'></i> Print",
+						titleAttr: 'Print',
+						footer: 'true',
+						title: 'Summary',
+						exportOptions: {
+							columns: ':visible'
+						},
 
-                    },
-                ],
+					},
+				],
 				data: data_arr,
 				order: [],
 				columns: [{
@@ -453,9 +454,12 @@ $this->load->view('inc/header');
 		}
 
 		function remove_from_invoice() {
-			index = $(this).closest('tr').index();
-			data_arr.splice(index, 1)
-			data_array(data_arr)
+			$('#data_list tbody').on('click', 'td', function() {
+			var	index_no = table.row($(this).parents('tr')).index();
+				console.log(index_no);
+				data_arr.splice(index_no, 1)
+				data_array(data_arr)
+			});
 		}
 
 		$("form").on("submit", function(event) {
@@ -486,7 +490,6 @@ $this->load->view('inc/header');
 				type: "POST",
 				data: mydata,
 				success: function(data) {
-					console.log(data)
 					// location.replace("<?php echo base_url(); ?>Invoice/create_invoice");
 				}
 			});

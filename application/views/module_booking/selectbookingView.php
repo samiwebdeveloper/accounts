@@ -195,7 +195,7 @@ $this->load->view('inc/header');
 											<input type="text" class="form-control" id="max" name="max" style="width:50% ;" placeholder="Enter End Date">
 										</div>
 										<div class="table-responsive">
-											<table class="table table-bordered compact nowrap" id="data_panel" style="border-top:1px solid black ;">
+											<table width="100%" class="table table-bordered compact nowrap" id="data_panel" style="border-top:1px solid black ;">
 												<thead>
 													<tr>
 														<th>No #</th>
