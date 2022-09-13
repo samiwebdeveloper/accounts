@@ -2,8 +2,6 @@
 error_reporting(0);
 $this->load->view('inc/header');
 ?>
-
-
 <style>
     .form-group-default .form-control {
         color: black;
@@ -78,14 +76,17 @@ $this->load->view('inc/header');
         margin-left: 9px;
     }
 
-
     .nav-tabs-fillup>li>a:after {
         -webkit-backface-visibility: hidden;
         -moz-backface-visibility: hidden;
         backface-visibility: hidden;
         background: none repeat scroll 0 0 #6d5eac;
         border: 1px solid #6d5eac;
+    }
 
+    tr.group,
+    tr.group:hover {
+        background-color: #ddd !important;
     }
 </style>
 <div class="page-content-wrapper">
@@ -117,14 +118,14 @@ $this->load->view('inc/header');
                         <button class="btn btn-primary " data-toggle="modal" data-target="#bookreissue"><i class="fa fa-share-square"></i>Book ReIssue </button>
                         <button class="btn btn-primary" data-toggle="modal" data-target="#stockmanag"><i class="pg-settings"></i> CN Management </button>
                         <div class="row">
-                            <div class="col-md-7">
+                            <div class="col-md-6">
                                 <div class="card ">
                                     <div class="card-body">
                                         <div class="table-responsive m-t-1">
                                             <div class="card-header  separator">
                                                 <div class="card-title ">CN Book Summary </div>
                                             </div>
-                                            <table id="myDataTable" class=" text-center table table-bordered compact nowrap table-hover" cellspacing="0" width="100%">
+                                            <table id="myDataTable" class=" text-center table table-bordered compact nowrap " cellspacing="0" width="100%">
                                                 <thead>
                                                     <th>Total CN Book</th>
                                                     <th>Issue CN Book</th>
@@ -146,10 +147,43 @@ $this->load->view('inc/header');
                                                         }
                                                     }
                                                     echo ("<tr>");
-                                                    echo ("<td>" . $total . "</td>");
-                                                    echo ("<td>" . $isissue  . "</td>");
-                                                    echo ("<td>" . $notissue . "</td>");
+                                                    echo ("<td>" . number_format($total) . "</td>");
+                                                    echo ("<td>" . number_format($isissue) . "</td>");
+                                                    echo ("<td>" . number_format($notissue) . "</td>");
                                                     echo ("</tr>");
+                                                    ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card ">
+                                    <div class="card-body">
+                                        <div class="table-responsive m-t-1">
+                                            <div class="card-header  separator">
+                                                <div class="card-title ">CNs Summary </div>
+                                            </div>
+                                            <table id="myDataTable" class=" text-center table table-bordered compact nowrap " cellspacing="0" width="100%">
+                                                <thead>
+                                                    <th>Total CN Issued</th>
+                                                    <th>Total CN Reported</th>
+                                                    <th>Available CN</th>
+                                                </thead>
+                                                <tbody style="border-top: 1px solid black;font-size: 20px !important;">
+                                                    <?php if (!empty($cn_book_summary)) {
+                                                        $total = 0;
+                                                        $isissue = 0;
+                                                        $notissue = 0;
+                                                        foreach ($cn_summary as $cn) {
+                                                            echo ("<tr>");
+                                                            echo ("<td>" . number_format($cn->Total_Issued) . "</td>");
+                                                            echo ("<td>" . number_format($cn->Total_Reported) . "</td>");
+                                                            echo ("<td>" . number_format($cn->Available) . "</td>");
+                                                            echo ("</tr>");
+                                                        }
+                                                    }
                                                     ?>
                                                 </tbody>
                                             </table>
@@ -161,7 +195,6 @@ $this->load->view('inc/header');
                         </div>
                     </div>
                     <!-- START card -->
-
                     <div class=" container-fluid   container-fixed-lg bg-gray">
                         <div class="row">
                             <div class="col-md-12">
@@ -170,17 +203,17 @@ $this->load->view('inc/header');
                                         <div class="col-md-12">
                                             <div class="panel">
                                                 <ul class="nav nav-tabs nav-tabs-fillup">
-                                                    <li class="active"> <a data-toggle="tab" href="#maindashbord" class="active show" id="main">Book Stock In</a></li>
-                                                    <li><a data-toggle="tab" href="#OriginCityWise" id="origin_city">Book Issuance Report</a></li>
-                                                    <li><a data-toggle="tab" href="#reissue" >Book Re Issue Report</a></li>
-                                                    <li> <a data-toggle="tab" href="#destinationCityWise" id="des_city">Book Mangement Report</a></li>
+                                                    <li class="active"> <a data-toggle="tab" href="#maindashbord" class="active show" onclick="get_stock_record('stockin')" id="main">Book Stock In</a></li>
+                                                    <li><a data-toggle="tab" href="#OriginCityWise" id="origin_city" onclick="get_stock_record('book_issuance')">Book Issuance Report</a></li>
+                                                    <li><a data-toggle="tab" href="#reissue" onclick="get_stock_record('book_reissuance')">Book Re Issue Report</a></li>
+                                                    <li> <a data-toggle="tab" href="#destinationCityWise" id="des_city" onclick="get_stock_record('book_manage')">Book Mangement Report</a></li>
+                                                    <li> <a data-toggle="tab" href="#missingcns" id="des_city" onclick="get_stock_record('missing')">Missing CNs Report</a></li>
                                                 </ul>
-
                                                 <div class="tab-content">
                                                     <div class="tab-pane slide-right active" id="maindashbord">
                                                         <div class="row">
                                                             <div class="table-responsive m-t-2">
-                                                                <table style="border-top: 1px solid black;" class="table table-bordered compact nowrap dataTable no-footer" id="myTable">
+                                                                <table id="stockin" style="border-top: 1px solid black;" class="table tbl_js table-bordered compact nowrap dataTable no-footer">
                                                                     <thead>
                                                                         <th>Sr #</th>
                                                                         <th>Series Range</th>
@@ -189,7 +222,7 @@ $this->load->view('inc/header');
                                                                         <th>Date&Time</th>
                                                                         <th>Created By</th>
                                                                     </thead>
-                                                                    <tbody id="autoload">
+                                                                    <!-- <tbody id="autoload">
                                                                         <?php if (!empty($cn_book_instock)) {
                                                                             $i = 1;
                                                                             foreach ($cn_book_instock as $rows) {
@@ -204,7 +237,7 @@ $this->load->view('inc/header');
                                                                                 $i = $i + 1;
                                                                             }
                                                                         }  ?>
-                                                                    </tbody>
+                                                                    </tbody> -->
                                                                 </table>
                                                             </div>
                                                         </div>
@@ -213,39 +246,47 @@ $this->load->view('inc/header');
                                                         <div class="row">
                                                             <div class="table-responsive m-t-2">
                                                                 <?php if ($_SESSION['is_supervisor'] == 1) { ?>
-                                                                    <table style="border-top: 1px solid black;" class="table table-bordered compact nowrap dataTable no-footer" width="100%" id="myTable">
+                                                                    <table id="book_issuance" style="border-top: 1px solid black;" class="table table-bordered compact nowrap dataTable no-footer" width="100%">
                                                                         <thead>
                                                                             <th>Sr #</th>
                                                                             <th>Series Range</th>
+                                                                            <th>Total Cn</th>
+                                                                            <th>available</th>
                                                                             <th>Date&Time</th>
                                                                             <th>Rider</th>
                                                                             <th>Route</th>
                                                                             <th>Issue By</th>
                                                                             <th style="display:none ;">Issue By</th>
                                                                             <th width=4%>Edit</th>
-
+                                                                            <th width=4%>Detail</th>
                                                                         </thead>
                                                                         <tbody id="autoload">
                                                                             <?php if (!empty($cn_issuance)) {
                                                                                 $i = 0;
+
                                                                                 foreach ($cn_issuance as $rows) {
+                                                                                    $get_toal_cn = [];
+                                                                                    $get_toal_cn = explode('-', $rows->book_code);
                                                                                     $i = $i + 1;
                                                                                     echo ("<tr>");
                                                                                     echo ("<td>" . $i  . "</td>");
-                                                                                    echo ("<td>" . $rows->book_code . "</td>");
+                                                                                    echo ("<td class='cn_range'>" . $rows->book_code . "</td>");
+                                                                                    echo ("<td>" . ($get_toal_cn[1] - $get_toal_cn[0] + 1) . "</td>");
+                                                                                    echo ("<td>" . $rows->Remaining . "</td>");
                                                                                     echo ("<td>" . date('d-M-Y', strtotime($rows->issue_date)) . "</td>");
                                                                                     echo ("<td class='edit_dc'>" . $rows->rider_name . "</td>");
                                                                                     echo ("<td>" . $rows->route_name . "</td>");
                                                                                     echo ("<td>" . $rows->oper_user_name . "</td>");
                                                                                     echo ("<td hidden class='row_id'>" . $rows->cn_id . "</td>");
                                                                                     echo '<td class="text-center " data-toggle="modal" data-target="#edit"><button class="edit_btn btn btn-success btn-xs"><i class="fa fa-edit"></i></button></td>';
+                                                                                    echo '<td class="text-center "><button class="view_btn btn btn-info btn-xs"><i class="fa fa-eye"></i></button></td>';
                                                                                     echo ("</tr>");
                                                                                 }
                                                                             }  ?>
                                                                         </tbody>
                                                                     </table>
                                                                 <?php } else { ?>
-                                                                    <table style="border-top: 1px solid black;" class="table table-bordered compact nowrap dataTable no-footer" id="myTable">
+                                                                    <table id="book_issuance" style="border-top: 1px solid black;" class="table table-bordered compact nowrap dataTable no-footer">
                                                                         <thead>
                                                                             <th>Sr#</th>
                                                                             <th>Series Range</th>
@@ -278,7 +319,7 @@ $this->load->view('inc/header');
                                                     <div class="tab-pane slide-left" id="destinationCityWise">
                                                         <div class="row">
                                                             <div class="table-responsive m-t-2">
-                                                                <table style="border-top: 1px solid black;" class="table table-bordered compact nowrap dataTable no-footer" id="myTable">
+                                                                <table id="book_manage" style="border-top: 1px solid black;" class="table table-bordered compact nowrap dataTable no-footer">
                                                                     <thead>
                                                                         <th>Sr #</th>
                                                                         <th>Series Range</th>
@@ -309,10 +350,10 @@ $this->load->view('inc/header');
                                                             </div>
                                                         </div>
                                                     </div>
-                                                      <div class="tab-pane slide-left" id="reissue">
+                                                    <div class="tab-pane slide-left" id="reissue">
                                                         <div class="row">
                                                             <div class="table-responsive m-t-2">
-                                                                <table style="border-top: 1px solid black;" class="table table-bordered compact nowrap dataTable no-footer" id="myTable">
+                                                                <table id="book_reissuance" style="border-top: 1px solid black;" class="table table-bordered compact nowrap dataTable no-footer">
                                                                     <thead>
                                                                         <th>Sr #</th>
                                                                         <th>Book Range</th>
@@ -321,23 +362,43 @@ $this->load->view('inc/header');
                                                                         <th>Rider</th>
                                                                         <th>Route</th>
                                                                         <th>Date</th>
+                                                                    </thead>
+                                                                    <tbody>
+
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="tab-pane slide-left" id="missingcns">
+                                                        <div class="row">
+                                                            <div class="table-responsive m-t-2">
+                                                                <table id="missing" style="border-top: 1px solid black;" class="table table-bordered compact nowrap dataTable_m no-footer">
+                                                                    <thead>
+                                                                        <th>Sr #</th>
+                                                                        <th>Book Range</th>
+                                                                        <th>Total CN</th>
+                                                                        <th>Missing CN</th>
+                                                                        <th>book status</th>
+                                                                        <th>issue date</th>
+                                                                        <th>Rider</th>
                                                                         <th>Created By</th>
                                                                     </thead>
                                                                     <tbody id="">
-                                                                        <?php if (!empty($cn_reissue)) {
+                                                                        <?php if (!empty($cn_missing)) {
                                                                             $i = 0;
-                                                                            foreach ($cn_reissue as $rowss) {
+                                                                            foreach ($cn_missing as $rowss) {
+                                                                                $b_count = explode('-', $rowss->book_code);
                                                                                 $i = $i + 1;
-                                                                             $total= $rowss->end_cn-$rowss->start_cn;
+                                                                                $total = $rowss->end_cn - $rowss->start_cn;
                                                                                 echo ("<tr>");
                                                                                 echo ("<td>" . $i . "</td>");
-                                                                                echo ("<td>" . $rowss->start_cn."-". $rowss->end_cn . "</td>");
-                                                                                echo ("<td>" .$total . "</td>");
-                                                                                
-                                                                                echo ("<td>" . $rowss->reason . "</td>");
+                                                                                echo ("<td>" . $rowss->book_code . "</td>");
+                                                                                echo ("<td>" . ($b_count[1] - $b_count[0] + 1)  . "</td>");
+                                                                                echo ("<td>" . $rowss->manual_cn . "</td>");
+                                                                                echo ("<td>" . $rowss->book_status . "</td>");
+                                                                                echo ("<td>" . $rowss->issue_date . "</td>");
                                                                                 echo ("<td>" . $rowss->rider_name . "</td>");
-                                                                                echo ("<td>" . $rowss->route_name . "</td>");
-                                                                                echo ("<td>" . date('d-M-Y', strtotime($rowss->date)) . "</td>");
                                                                                 echo ("<td>" . $rowss->oper_user_name . "</td>");
                                                                                 echo ("</tr>");
                                                                             }
@@ -350,7 +411,6 @@ $this->load->view('inc/header');
                                                 </div>
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
@@ -404,9 +464,7 @@ $this->load->view('inc/header');
                                             </select>
                                         </div>
                                     </div>
-
                                 </div>
-
                             </div>
                         </div>
                         <!-- Modal footer -->
@@ -417,7 +475,6 @@ $this->load->view('inc/header');
                     </div>
                 </div>
             </div>
-
             <div class="modal show" id="stockin">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -428,7 +485,7 @@ $this->load->view('inc/header');
                         </div>
                         <!-- Modal body -->
                         <div class="modal-body">
-                            <p id="msg_show">Stock In</p>
+                            <p id="msg_show"></p>
                             <span class="checkerror" style="color:red ;"></span>
                             <div class="form-group-attached" style="border-color: black">
                                 <div class="row">
@@ -451,7 +508,6 @@ $this->load->view('inc/header');
                                     <label>Issuance DateTime</label>
                                     <input type="datetime-local" class="form-control" name="datetime" id="datetime" value="<?php echo date('Y-m-d\TH:i') ?>" tabindex="2">
                                     <span class="dateerror" style="color:red ;"></span>
-
                                 </div>
                             </div>
                         </div>
@@ -460,7 +516,6 @@ $this->load->view('inc/header');
                             <button type="button" class="btn btn-primary" id="create_cn">Save</button>
                             <button type="button" class="btn btn-default load_data" data-dismiss="modal">Close</button>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -474,17 +529,16 @@ $this->load->view('inc/header');
                         </div>
                         <!-- Modal body -->
                         <div class="modal-body">
-                            <p id="msg">Stock In</p>
-
-                            <p id="msg_show">Stock Management</p>
+                            <p id="msg"></p>
+                            <p id="msg_show"></p>
                             <span class="checkerror" style="color:red ;"></span>
                             <div class="form-group-attached" style="border-color: black">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group form-group-default required" aria-required="true" id="route_code_div">
-                                            <label>Missing CN #</label>
+                                            <label> CN #</label>
                                             <span class="mantoerror" style="color:red ;"></span>
-                                            <input type="number" class="form-control" placeholder=" Missing CN Number" name="seriesfrom" id="missingcn">
+                                            <input type="number" class="form-control" placeholder=" Enter CN Number" name="seriesfrom" id="missingcn">
                                             <span class="sfromerror" style="color:red ;"></span>
                                         </div>
                                     </div>
@@ -518,7 +572,6 @@ $this->load->view('inc/header');
                             <button type="button" class="btn btn-primary" id="manag_cn">Save</button>
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -537,18 +590,6 @@ $this->load->view('inc/header');
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group form-group-default required">
-                                            <label>Select CN Book</label>
-                                            <span class="cnerror" style="color:red ;"></span>
-                                            <select class="form-control" id="cn_book" tabindex=2 style="width:100% !important ;">
-                                                <option value='0' selected>Select CN </option>
-                                                <?php foreach ($cn_range as $cn_range) { ?>
-                                                    <option value=<?php echo $cn_range->book_id; ?>><?php echo  $cn_range->book_code; ?></option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group form-group-default required">
                                             <label>Select Rider</label>
                                             <span class="ridererror" style="color:red ;"></span>
                                             <select class="form-control" id="Select_rider" tabindex=2 style="width:100% !important ;">
@@ -561,8 +602,27 @@ $this->load->view('inc/header');
                                             </select>
                                         </div>
                                     </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group form-group-default required">
+                                            <label>Select CN Book</label>
+                                            <span class="cnerror" style="color:red ;"></span>
+                                            <select class="form-control" id="cn_book" multiple tabindex=2 style="width:100% !important ;">
+                                                <!-- <option value='0' selected>Select CN </option> -->
+                                                <?php foreach ($cn_range as $cn_range) { ?>
+                                                    <option value=<?php echo $cn_range->book_id; ?>><?php echo  $cn_range->book_code; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
-
+                                <div class="row">
+                                    <div class="form-group form-group-default ">
+                                        <div class="table-responsive m-t-1">
+                                            <table id="add_book_detail" class=" text-center table table-bordered compact nowrap " cellspacing="0" width="100%">
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="form-group form-group-default required">
                                     <label>Select Route</label>
                                     <span class="routeerror" style="color:red ;"></span>
@@ -603,81 +663,80 @@ $this->load->view('inc/header');
                         <div class="modal-body">
                             <p id="reissue_msg"></p>
                             <form action="">
-                            <div class="form-group-attached" style="border-color: black">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group form-group-default required">
-                                            <label>Select CN Book</label>
-                                            <span class="is_book" style="color:red ;"></span>
-                                            <select class="form-control" id="is_book" tabindex=2 style="width:100% !important ;">
-                                                <option value='0' selected>Select CN </option>
-                                                <?php foreach ($issue_book as $issue_book) { ?>
-                                                    <option value=<?php echo $issue_book->book_id; ?>><?php echo  $issue_book->book_code; ?></option>
-                                                <?php } ?>
-                                            </select>
+                                <div class="form-group-attached" style="border-color: black">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group form-group-default required">
+                                                <label>Select CN Book</label>
+                                                <span class="is_book" style="color:red ;"></span>
+                                                <select class="form-control" id="is_book" tabindex=2 style="width:100% !important ;">
+                                                    <option value='0' selected>Select CN </option>
+                                                    <?php foreach ($issue_book as $issue_book) { ?>
+                                                        <option value=<?php echo $issue_book->book_id; ?>><?php echo  $issue_book->book_code; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group form-group-default required">
-                                            <label>Start CN Book</label>
-                                            <span class="is_start" style="color:red ;"></span>
-                                            <input type="number" class="form-control" name="is_start" id="is_start" value="<?php echo date('Y-m-d\TH:i') ?>" tabindex="2">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group form-group-default required">
+                                                <label>Start CN Book</label>
+                                                <span class="is_start" style="color:red ;"></span>
+                                                <input type="number" class="form-control" name="is_start" id="is_start" value="<?php echo date('Y-m-d\TH:i') ?>" tabindex="2">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group form-group-default required">
+                                                <label>End CN Book</label>
+                                                <span class="is_start" style="color:red ;"></span>
+                                                <input type="number" class="form-control" disabled name="is_end" id="is_end" value="<?php echo date('Y-m-d\TH:i') ?>" tabindex="2">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group form-group-default required">
-                                            <label>End CN Book</label>
-                                            <span class="is_start" style="color:red ;"></span>
-                                            <input type="number" class="form-control" disabled name="is_end" id="is_end" value="<?php echo date('Y-m-d\TH:i') ?>" tabindex="2">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group form-group-default required">
+                                                <label>Select Rider</label>
+                                                <span class="ridererror" style="color:red ;"></span>
+                                                <select class="form-control" id="is_rider" tabindex=2 style="width:100% !important ;">
+                                                    <option value="0" selected id="append_rider">Select Rider</option>
+                                                    <?php
+                                                    foreach ($result_rider as $row) {
+                                                        echo " <option value='" . $row['rider_id'] . "'>" . $row['rider_name'] . "</option>";
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group form-group-default required">
+                                                <label>Select Route</label>
+                                                <span class="routeerror" style="color:red ;"></span>
+                                                <select class="form-control" id="is_route" tabindex=4 style="width:100% !important ;">
+                                                    <option value="0" selected id="append_route">Select Route</option>
+                                                    <?php
+                                                    foreach ($result_route as $row) {
+                                                        echo " <option value='" . $row['route_id'] . "'>" . $row['route_name'] . "</option>";
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="row">
+                                        <span class="is_des" style="color:red ;"></span>
                                         <div class="form-group form-group-default required">
-                                            <label>Select Rider</label>
-                                            <span class="ridererror" style="color:red ;"></span>
-                                            <select class="form-control" id="is_rider" tabindex=2 style="width:100% !important ;">
-                                                <option value="0" selected id="append_rider">Select Rider</option>
-                                                <?php
-                                                foreach ($result_rider as $row) {
-                                                    echo " <option value='" . $row['rider_id'] . "'>" . $row['rider_name'] . "</option>";
-                                                }
-                                                ?>
-                                            </select>
+                                            <label>Reason</label>
+                                            <textarea id="is_des" name="is_des" class="form-control " style=" height:50px;min-height:30px; max-height:150px;"></textarea>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group form-group-default required">
-                                            <label>Select Route</label>
-                                            <span class="routeerror" style="color:red ;"></span>
-                                            <select class="form-control" id="is_route" tabindex=4 style="width:100% !important ;">
-                                                <option value="0" selected id="append_route">Select Route</option>
-                                                <?php
-                                                foreach ($result_route as $row) {
-                                                    echo " <option value='" . $row['route_id'] . "'>" . $row['route_name'] . "</option>";
-                                                }
-                                                ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <span class="is_des" style="color:red ;"></span>
                                     <div class="form-group form-group-default required">
-                                        <label>Reason</label>
-                                        <textarea id="is_des" name="is_des" class="form-control " style=" height:50px;min-height:30px; max-height:150px;"></textarea>
+                                        <label>Date Time</label>
+                                        <span class="datetimeerror" style="color:red ;"></span>
+                                        <input type="datetime-local" class="form-control" name="datetime_issuance" id="is_date" value="<?php echo date('Y-m-d\TH:i') ?>" tabindex="2">
                                     </div>
                                 </div>
-
-                                <div class="form-group form-group-default required">
-                                    <label>Date Time</label>
-                                    <span class="datetimeerror" style="color:red ;"></span>
-                                    <input type="datetime-local" class="form-control" name="datetime_issuance" id="is_date" value="<?php echo date('Y-m-d\TH:i') ?>" tabindex="2">
-                                </div>
-                            </div>
                             </form>
                         </div>
                         <!-- Modal footer -->
@@ -693,328 +752,84 @@ $this->load->view('inc/header');
     <?php
     $this->load->view('inc/footer');
     ?>
+
     <script>
-        $(".edit_btn").click(function() {
-            var $row = $(this).closest("tr");
-            $('#issuance_data_edit').on("click", function(event) {
-                var row_id = $row.find(".row_id").html();
-                var edit_rider = $("#edit_rider :selected").val();
-                var edit_route = $("#edit_route :selected").val();
-                var chk = 0;
-                var ajaxurl = "";
-                var mydata = {};
-
-                if (edit_route != 0 || edit_rider == 0) {
-                    mydata = {
-                        row_id: row_id,
-                        edit_rider: 0,
-                        edit_route: edit_route,
-                    };
-                    chk = 1;
-                }
-                if (edit_route == 0 || edit_rider != 0) {
-                    mydata = {
-                        row_id: row_id,
-                        edit_rider: edit_rider,
-                        edit_route: 0,
-                    };
-                    chk = 1;
-                }
-                if (edit_route != 0 || edit_rider != 0) {
-                    mydata = {
-                        row_id: row_id,
-                        edit_rider: edit_rider,
-                        edit_route: edit_route,
-                    };
-                    chk = 1;
-                }
-
-                if (chk == 1) {
-                    if (edit_route == 0 && edit_rider == 0) {
-                        $('#editerror').before('<div class="  col-md-12 alert alert-danger" role="alert"> <button class="close "  data-dismiss="alert"></button><strong>Alert!: </strong>One field is required.</div>')
-                    } else {
-                        console.log(mydata);
-                        $.ajax({
-                            url: "edit",
-                            type: "POST",
-                            data: mydata,
-                            success: function(data) {
-                                location.reload();
-                            },
+        function get_stock_record(param) {
+            $.ajax({
+                url: "<?php echo base_url() ?>CnBook/select_cn_func/" + param + "",
+                method: "POST",
+                success: function(data) {
+                    var js_obj = JSON.parse(data)
+                    var data_arr = [];
+                    var data_arr_key = [];
+                    var data="data";
+                    for (var count = 0; count < js_obj.length; count++) {
+                        var a = [];
+                        var str = "";
+                        const obj = {}
+                        const obj_key = {}
+                        $.each(js_obj[count], function(key, val) {
+                            obj[key] = val
+                            obj_key["data"] = key
+                         
                         });
+                        data_arr.push(obj)
+                        data_arr_key.push(obj_key)
+                       
                     }
-
+                    data_array(data_arr, param,data_arr_key)
 
                 }
-
-            })
-        })
-    </script>
-    <script>
-        $(document).ready(function() {
-            $('#cn_book').select2();
-            $('#Select_rider').select2();
-            $('#Select_route').select2();
-            $('#is_rider').select2();
-            $('#is_route').select2();
-            $('#cnstatus').select2();
-            $('#edit_route').select2();
-            $('#edit_rider').select2();
-            $('#is_book').select2();
-        });
-    </script>
-    <script>
-        $('#is_book').change(function(event) {
-            var issue_book_text = $('#is_book :selected').text();
-            var split_string = issue_book_text.split("-");
-            $('#is_start').val(split_string[0]);
-            $('#is_end').val(split_string[1]);
-
-            $('#reissue_data').on("click", function() {
-                var issue_book = $('#is_book :selected').val();
-                var is_rider = $('#is_rider :selected').val();
-                var is_route = $('#is_route :selected').val();
-                var is_start = $('#is_start').val();
-                var is_end = $('#is_end').val();
-                var is_des = $('#is_des').val();
-                var is_date = $('#is_date').val();
-                mydata = {
-                    action: 'fetch',
-                    issue_book: issue_book,
-                    is_start: is_start,
-                    is_end: is_end,
-                    is_rider: is_rider,
-                    is_route: is_route,
-                    is_des: is_des,
-                    is_date: is_date,
-                };
-                $('#is_book :selected').text("Select CN")
-                $('#is_book').val("Select CN")
-                if (issue_book != 0 && is_rider != 0 && is_route != 0 && is_start != '' && is_des != '') {
-                    $.ajax({
-                        url: "insert_reissue_data",
-                        method: "POST",
-                        data: mydata,
-                        success: function(data) {
-                            $('#reissue_msg').html('<div class="  col-md-12 alert alert-success" role="alert"> <button class="close "  data-dismiss="alert"></button><strong>Successfully!: </strong>Record is saved.</div>')
-                            $("form")[0].reset();
-                            location.reload();
-                        }
-                    });
-                }else{
-                    $('#reissue_msg').html('<div class="  col-md-12 alert alert-danger" role="alert"> <button class="close "  data-dismiss="alert"></button><strong>Alert!: </strong>All field is required.</div>')
-                }
-            })
-
-        });
-    </script>
-    <script>
-        $('.load_data').on("click", function(event) {
-            location.reload();
-        })
-        document.getElementById("seriesfrom").addEventListener("input", function() {
-            document.getElementById("seriesto").value = parseInt(this.value) + 49;
-        });
-        $('#create_cn').on("click", function(event) {
-            var seriesto = $('#seriesto').val();
-            var seriesfrom = $('#seriesfrom').val();
-            var datetime = $('#datetime').val()
-            if (seriesto == "") {
-                $('.stoerror').html('<p >This field is required.</p>');
-            } else {
-                $('.stoerror').html('');
-            }
-            if (seriesfrom == '') {
-                $('.sfromerror').html('<p>This field is required.</p>');
-            } else {
-                $('.sfromerror').html('');
-            }
-            if (datetime == '') {
-                $('.dateerror').html('<p >This field is required.</p>');
-            } else {
-                $('.dateerror').html('');
-            }
-
-            if (seriesto != "" && seriesfrom != "" && datetime != "") {
-                if (parseInt(seriesto) > parseInt(seriesfrom)) {
-                    $('.checkerror').html('');
-                    mydata = {
-                        action: 'fetch',
-                        seriesto: seriesto,
-                        seriesfrom: seriesfrom,
-                        datetime: datetime,
-                    };
-
-                    $.ajax({
-                        url: "insert_cn",
-                        method: "POST",
-                        data: mydata,
-                        beforeSend: function() {
-                            $('#create_cn').attr("disabled", true).css("cursor", "not-allowed")
-                            $('#create_cn').html("Sending ...")
-                        },
-                        success: function(data) {
-                            $('.checkerror').html(data);
-                            $('#create_cn').attr("disabled", false).css("cursor", "pointer")
-                            $('#create_cn').html("Save")
-                            $('#seriesfrom').val("").focus();
-                            $('#seriesto').val("");
-                        }
-                    });
-                } else {
-                    $('.checkerror').html('<p >Start CN Must be less than from End CN .</p>');
-                }
-            }
-        });
-    </script>
-
-    <script>
-        $('#issuance_data').on("click", function(event) {
-            var cn_book = $('#cn_book  option:selected').val();
-            var Select_rider = $('#Select_rider  option:selected').val();
-            var Select_route = $('#Select_route  option:selected').val();
-            var datetime_issuance = $('#datetime_issuance').val();
-            if (cn_book == 0) {
-                $('.cnerror').html('<p >This field is required.</p>');
-            } else {
-                $('.cnerror').html('');
-            }
-            if (Select_rider == 0) {
-                $('.ridererror').html('<p>This field is required.</p>');
-            } else {
-                $('.ridererror').html('');
-            }
-            if (Select_route == 0) {
-                $('.routeerror').html('<p>This field is required.</p>');
-            } else {
-                $('.routeerror').html('');
-            }
-            if (datetime == "") {
-                $('.datetimeerror').html('<p >This field is required.</p>');
-            } else {
-                $('.datetimeerror').html('');
-            }
-
-            if (cn_book != 0 && Select_rider != 0 && Select_route != 0 && datetime != "") {
-                console.log('testing2');
-
-                mydata = {
-                    action: 'fetch',
-                    cn_book: cn_book,
-                    rider: Select_rider,
-                    route: Select_route,
-                    datetime_issuance: datetime_issuance
-                };
-                console.log(mydata);
-
-                $.ajax({
-                    url: "insert_issuance",
-                    method: "POST",
-                    data: mydata,
-                    beforeSend: function() {
-                        $('#issuance_data').attr("disabled", true).css("cursor", "not-allowed")
-                        $('#issuance_data').html("Sending ...")
-                    },
-                    success: function(data) {
-                        alert('Record has been successfully saved.')
-                        $('#issuance_data').attr("disabled", false).css("cursor", "pointer")
-                        $('#issuance_data').html("Save")
-                        location.reload();
-                    }
-                });
-
-            }
-        });
-    </script>
-
-    <script>
-        $('#manag_cn').on("click", function(event) {
-            var missingcn = $('#missingcn').val();
-            var cnstatus = $('#cnstatus option:selected').val();
-            var datetime_manag = $('#datetime_manag').val();
-            var mang_des = $('#mang_des').val();
-
-            if (missingcn == "") {
-                $('.mantoerror').html('<p >This field is required.</p>');
-            } else {
-                $('.mantoerror').html('');
-            }
-            if (cnstatus == 0) {
-                $('.manstoerror').html('<p>This field is required.</p>');
-            } else {
-                $('.manstoerror').html('');
-            }
-            if (datetime == '') {
-                $('.mandateerror').html('<p >This field is required.</p>');
-            } else {
-                $('.mandateerror').html('');
-            }
-
-            if (missingcn != "" && cnstatus != 0 && datetime_manag != "") {
-                $('.checkerror').html('');
-                mydata = {
-                    action: 'fetch',
-                    missingcn: missingcn,
-                    cnstatus: cnstatus,
-                    datetime_manag: datetime_manag,
-                    mang_des: mang_des
-                };
-
-                $.ajax({
-                    url: "manage_cn",
-                    method: "POST",
-                    data: mydata,
-                    beforeSend: function() {
-                        $('#manag_cn').attr("disabled", true).css("cursor", "not-allowed")
-                        $('#manag_cn').html("Sending ...")
-                    },
-                    success: function(data) {
-                        $('#msg').html(data);
-                        $('#manag_cn').attr("disabled", false).css("cursor", "pointer")
-                        $('#manag_cn').html("Save")
-                        $('#missingcn').val("");
-                        location.reload();
-                    }
-                });
-            }
-        });
-    </script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            var table = $('.dataTable').DataTable({
-                "displayLength": 10,
-                "lengthMenu": [
-                    [10, 25, 50, 100, -1],
-                    [10, 25, 50, 100, "All"]
-                ],
-
-                "fixedHeader": true,
-                "searching": true,
-                "paging": true,
-                "ordering": true,
-                "bInfo": true,
-                dom: 'Blfrtip',
-                buttons: [
-                    'colvis',
-                    {
-                        extend: 'csv',
-                        titleAttr: 'Excel',
-                        title: "Route Detail",
-                    },
-                    {
-                        extend: 'copyHtml5',
-                        footer: 'true',
-                        text: "<i class='fs-14 pg-note'></i> Copy",
-                        titleAttr: 'Copy'
-                    },
-                    {
-                        extend: 'print',
-                        titleAttr: 'Print',
-                        title: "Manage CNBook",
-
-                    }
-                ]
-
             });
-        });
+        }
+
+        function data_array(get_array, param,data_arr_key) {
+            var id = "#" + param;
+            var columns;
+            console.log(id);
+            console.log(data_arr_key);
+            $(id).DataTable().destroy();
+
+            var jsonString = JSON.stringify(get_array  ) ;
+            console.log(jsonString);
+            table = $(id).DataTable({
+            //     data : jsonString.book_code,
+            //   columns : jsonString.book_code,
+                lengthMenu: [
+                    [25, 50, -1],
+                    [25, 50, "All"]
+                ],
+                dom: 'Blfrtip',
+                buttons: ['colvis'],
+                data: get_array,
+                order: [],
+                columns: [
+                    
+                    {
+                    	data: "book_code"
+                    },
+                    {
+                    	data: "book_id"
+                    },
+                    {
+                    	data: "created_at"
+                    },
+                    {
+                    	data: "created_by"
+                    },
+                    {
+                    	data: "date"
+                    },
+                    {
+                    	data: "end_cn"
+                    },
+                    {
+                    	data: "oper_user_name"
+                    }
+                ],
+            });
+            // console.log(columns);
+
+
+        }
     </script>

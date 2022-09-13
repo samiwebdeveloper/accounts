@@ -1,8 +1,6 @@
 <?php
-
 class Customer extends CI_Controller
 {
-
 	function __construct()
 	{
 		parent::__construct();
@@ -10,7 +8,181 @@ class Customer extends CI_Controller
 		$this->load->model('Commonmodel');
 		$this->load->model('Customermodel');
 	}
+	public function add_customer_user()
+	{
+		$data['cities_data'] = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_city', 'is_enable', 1);
+		$data['customer_data'] = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_customer', 'is_enable', 1);
+		$data['user_data'] = $this->Customermodel->Get_user_all_record();
+		$this->load->view('module_customer/customeruserView', $data);
+	}
+	public function edit_user($id)
+	{
+		$data['cities_data'] = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_city', 'is_enable', 1);
+		$data['customer_data'] = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_customer', 'is_enable', 1);
+		$data['user_data_by_id'] = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_user', 'user_id', $id);
+		$this->load->view('module_customer/editcustomeruserView', $data);
+	}
+	public function add_customer_user_data()
+	{
+		$user_data = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_user', 'account_no', $_POST['account_title']);
+		if (empty($user_data)) {
+			$data_customer = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_customer', 'customer_id',  $_POST['customer']);
+			if ($_POST['check'] == 1) {
+				$customer_user = array(
+					"user_name" => $data_customer[0]->customer_name,
+					"account_no" => $_POST['account_title'],
+					"user_password" => md5("12345"),
+					"user_power" => $_POST['customer_type'],
+					"user_city" => $_POST['city'],
+					"is_enable" => 1,
+					"customer_id" => $_POST['customer'],
+					"created_by" => $_SESSION['user_id'],
+					"created_date" => date('Y-m-d H:i:s')
+				);
+			} else {
+				$customer_user = array(
+					"user_name" => $data_customer[0]->customer_name,
+					"account_no" => $_POST['account_title'],
+					"user_password" => md5("12345"),
+					"user_power" => $_POST['customer_type'],
+					"user_city" => $_POST['city'],
+					"is_enable" => 1,
+					"customer_id" => $_POST['customer'],
+					"created_by" => $_SESSION['user_id'],
+					"created_date" => date('Y-m-d H:i:s'),
+					"consignor_name" => $_POST['c_name'],
+					"consignor_phone" => $_POST['c_phone'],
+					"consignor_email" => $_POST['c_email'],
+					"consignor_add" => $_POST['c_add'],
+				);
+			}
+			$id = $this->Commonmodel->Insert_record('cargo.saimtech_user', $customer_user);
+			if ($id) {
+				echo "<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-success'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Successfully! Records has been saved.</div></div>";
+			} else {
+				echo "<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Something is wrong..</div></div>";
+			}
+		} else {
+			echo 0;
+		}
+	}
+	public function edit_customer_user_data()
+	{
+		$user_data_id = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_user', 'user_id', $_POST['user_id']);
+		if ($user_data_id[0]->account_no == $_POST['account_title']) {
+			if (empty($user_data)) {
+				$data_customer = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_customer', 'customer_id',  $_POST['customer']);
+				if ($_POST['check'] == 1) {
+					$customer_user = array(
+						"user_name" => $data_customer[0]->customer_name,
+						"account_no" => $_POST['account_title'],
+						"user_password" => md5("12345"),
+						"user_power" => $_POST['customer_type'],
+						"user_city" => $_POST['city'],
+						"is_enable" => 1,
+						"customer_id" => $_POST['customer'],
+						"modify_by" => $_SESSION['user_id'],
+						"modify_date" => date('Y-m-d H:i:s')
+					);
+				} else {
+					$customer_user = array(
+						"user_name" => $data_customer[0]->customer_name,
+						"account_no" => $_POST['account_title'],
+						"user_password" => md5("12345"),
+						"user_power" => $_POST['customer_type'],
+						"user_city" => $_POST['city'],
+						"is_enable" => 1,
+						"customer_id" => $_POST['customer'],
+						"modify_by" => $_SESSION['user_id'],
+						"modify_date" => date('Y-m-d H:i:s'),
+						"consignor_name" => $_POST['c_name'],
+						"consignor_phone" => $_POST['c_phone'],
+						"consignor_email" => $_POST['c_email'],
+						"consignor_add" => $_POST['c_add']
+					);
+				}
+				$id = $this->Commonmodel->Update_record('cargo.saimtech_user', 'user_id', $_POST['user_id'], $customer_user);
+				if ($id) {
+					echo "<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-success'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Successfully! Records has been saved.</div></div>";
+				} else {
+					echo "<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Something is wrong..</div></div>";
+				}
+			} else {
+				echo 0;
+			}
+		} else {
+			$user_data = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_user', 'account_no', $_POST['account_title']);
+			if (empty($user_data)) {
+				$data_customer = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_customer', 'customer_id',  $_POST['customer']);
+				if ($_POST['check'] == 1) {
+					$customer_user = array(
+						"user_name" => $data_customer[0]->customer_name,
+						"account_no" => $_POST['account_title'],
+						"user_password" => md5("12345"),
+						"user_power" => $_POST['customer_type'],
+						"user_city" => $_POST['city'],
+						"is_enable" => 1,
+						"customer_id" => $_POST['customer'],
+						"modify_by" => $_SESSION['user_id'],
+						"modify_date" => date('Y-m-d H:i:s'),
+					);
+				} else {
+					$customer_user = array(
+						"user_name" => $data_customer[0]->customer_name,
+						"account_no" => $_POST['account_title'],
+						"user_password" => md5("12345"),
+						"user_power" => $_POST['customer_type'],
+						"user_city" => $_POST['city'],
+						"is_enable" => 1,
+						"customer_id" => $_POST['customer'],
+						"modify_by" => $_SESSION['user_id'],
+						"modify_date" => date('Y-m-d H:i:s'),
+						"consignor_name" => $_POST['c_name'],
+						"consignor_phone" => $_POST['c_phone'],
+						"consignor_email" => $_POST['c_email'],
+						"consignor_add" => $_POST['c_add'],
+					);
+				}
+				$id = $this->Commonmodel->Update_record('cargo.saimtech_user', 'user_id', $_POST['user_id'], $customer_user);
+				if ($id) {
+					echo "<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-success'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Successfully! Records has been saved.</div></div>";
+				} else {
+					echo "<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Something is wrong..</div></div>";
+				}
+			} else {
+				echo 0;
+			}
+		}
+	}
+	public function change_user_status()
+	{
+		$data = array(
+			"is_enable" => $_POST['status'],
+			"modify_by" => $_SESSION['user_id'],
+			"modify_date" => date('Y-m-d H:i:s'),
+		);
+		$id = $this->Commonmodel->Update_record('cargo.saimtech_user', 'user_id', $_POST['user_id'], $data);
+		if ($id) {
+			echo "<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-success'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Successfully! status has been updated.</div></div>";
+		} else {
+			echo "<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Something is wrong..</div></div>";
+		}
+	}
 
+	public function reset_user_pass()
+	{
+		$data = array(
+			"user_password" => md5("12345"),
+			"modify_by" => $_SESSION['user_id'],
+			"modify_date" => date('Y-m-d H:i:s'),
+		);
+		$id = $this->Commonmodel->Update_record('cargo.saimtech_user', 'user_id', $_POST['user_id'], $data);
+		if ($id) {
+			echo "<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-success'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Successfully! Password has been updated.</div></div>";
+		} else {
+			echo "<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Something is wrong..</div></div>";
+		}
+	}
 	public $zone_type = array(
 		'I' => 'Islamabad',
 		'K' => 'Karachi',
@@ -18,7 +190,6 @@ class Customer extends CI_Controller
 		'M' => 'Main',
 		'T' => 'Tranist'
 	);
-
 	public $zone = array(
 		'IA' => 'ISB A',
 		'IB' => 'ISB B',
@@ -43,7 +214,6 @@ class Customer extends CI_Controller
 		'ex_punjab' => 'Ex Punjab',
 		'ex_sindh' => 'Ex Sindh'
 	);
-
 	public $rate_type = array(
 		'DW' => 'Destination Wise',
 		'FR' => 'Flate Rate',
@@ -52,18 +222,15 @@ class Customer extends CI_Controller
 		'TW' => 'Tranist Wise',
 		'ZW' => 'Zone Wise'
 	);
-
 	public $zone_type_region = array(
 		'I' => 'Region: Islamabad',
 		'K' => 'Region: Karachi',
 		'L' => 'Region: Lahore'
 	);
-
 	public $zone_type_tranist = array(
 		'M' => 'Tranist: Main',
 		'T' => 'Tranist: Tranist'
 	);
-
 	public $zones = array(
 		'IA' => 'Zone: ISB A',
 		'IB' => 'Zone: ISB B',
@@ -82,7 +249,6 @@ class Customer extends CI_Controller
 		'LE' => 'Zone: LHE E',
 		'WC' => 'With-In City'
 	);
-
 	public $zone_ex = array(
 		'ex_ajk' => 'Province / Tranist: Ex AJK',
 		'ex_bal' => 'Province / Tranist: Ex Balochistan',
@@ -91,7 +257,6 @@ class Customer extends CI_Controller
 		'ex_punjab' => 'Province / Tranist: Ex Punjab',
 		'ex_sindh' => 'Province / Tranist: Ex Sindh'
 	);
-
 	public function index()
 	{
 		//echo($_SESSION['origin_id']);	
@@ -107,11 +272,9 @@ class Customer extends CI_Controller
 		}
 		$this->load->view('module_customer/customerView', $data);
 	}
-
 	public function update_status($status, $id)
 	{
 	}
-
 	public function add_customer_view($error)
 	{
 		$data['event_name'] = "Add Customer";
@@ -121,7 +284,6 @@ class Customer extends CI_Controller
 		$data['error'] = $error;
 		$this->load->view('module_customer/addcustomerView', $data);
 	}
-
 	public function show_customer_view($customer_id)
 	{
 		//$get_rate_id=$this->Commonmodel->Get_record_by_double_condition_array('saimtech_rate', 'customer_id', $customer_id, 'is_enable', 1);
@@ -133,7 +295,6 @@ class Customer extends CI_Controller
 		$data['reference_data'] = $this->Commonmodel->Get_record_by_double_condition('acc_references', 'reference_type', 'Emp', 'is_enable', 1);
 		$this->load->view('module_customer/showcustomerView', $data);
 	}
-
 	public function show_rate_view($customer_id)
 	{
 		$get_rate_id = $this->Commonmodel->Get_record_by_double_condition_array('saimtech_rate', 'customer_id', $customer_id, 'is_enable', 1);
@@ -146,7 +307,6 @@ class Customer extends CI_Controller
 		$data['dest_data'] = $this->Customermodel->Get_Destination_Rate($customer_id);
 		$this->load->view('module_customer/rateshowView', $data);
 	}
-
 	public function add_customer()
 	{
 		$message                 = "";
@@ -189,7 +349,6 @@ class Customer extends CI_Controller
 		$user_password           = $this->input->post('user_password');
 		$date 			         = date('Y-m-d H:i:s');
 		$api_key                 = uniqid();
-
 		if ($pay_mode_id == "1") {
 			$paymode = "Account";
 		} else if ($pay_mode_id == "2") {
@@ -201,7 +360,6 @@ class Customer extends CI_Controller
 		} else if ($pay_mode_id == "5") {
 			$paymode = "FOC";
 		}
-
 		if ($service_type == '1') {
 			$service_name = "1";
 		} else if ($service_type == '2') {
@@ -233,10 +391,8 @@ class Customer extends CI_Controller
 		} else {
 			$service_name = "12";
 		}
-
 		$api_key = uniqid();
 		//$faf_date = $is_faf == 1 ? $faf_date : '0000-00-00';
-
 		if (
 			$brand_name != "" && $brand_city != "" && $service_type != "" && $paymode != "" && $account_type != "" && $service_name != ""
 			&& $brand_product != "" && $calculation_type != "" && $brand_note != "" && $bank_address != "" && $pickup_points != ""
@@ -283,7 +439,6 @@ class Customer extends CI_Controller
 			);
 			$this->db->trans_start();
 			$customer_id = $this->Commonmodel->Insert_record('cargo.saimtech_customer', $brand);
-
 			$ccity_data = $this->Commonmodel->Get_record_by_condition_array('acc_city', 'city_id', $brand_city);
 			$city_code = $ccity_data[0]['city_code'] . $customer_id;
 			$slip_name = $brand_name . " (" . $customer_id . ")";
@@ -292,7 +447,6 @@ class Customer extends CI_Controller
 				'customer_name_slip'	=> $slip_name
 			);
 			$this->Commonmodel->Update_record('cargo.saimtech_customer', 'customer_id', $customer_id, $brand_info);
-
 			if ($is_faf == 1) {
 				$faf_data = array(
 					'customer_id' => $customer_id,
@@ -305,7 +459,6 @@ class Customer extends CI_Controller
 				);
 				$chk = $this->Commonmodel->Insert_record('acc_customer_faf', $faf_data);
 			}
-
 			if (strlen($user_name) > 0) {
 				$brand_user = array(
 					'user_name'         => $display_name,
@@ -320,7 +473,6 @@ class Customer extends CI_Controller
 				);
 				$user_id = $this->Commonmodel->Insert_record('cargo.saimtech_user', $brand_user);
 			}
-
 			$data = array(
 				'customer_id'           => $customer_id,
 				'service_id'            => 1,
@@ -390,7 +542,6 @@ class Customer extends CI_Controller
 				'modify_date'           => '0000-00-00 00:00:00',
 			);
 			$rate_id = $this->Commonmodel->Insert_record('cargo.saimtech_rate', $data);
-
 			$data = array(
 				'customer_id'           => $customer_id,
 				'service_id'            => 2,
@@ -460,7 +611,6 @@ class Customer extends CI_Controller
 				'modify_date'           => '0000-00-00 00:00:00',
 			);
 			$rate_id = $this->Commonmodel->Insert_record('cargo.saimtech_rate', $data);
-
 			$data = array(
 				'customer_id'           => $customer_id,
 				'service_id'            => 3,
@@ -530,7 +680,6 @@ class Customer extends CI_Controller
 				'modify_date'           => '0000-00-00 00:00:00',
 			);
 			$rate_id = $this->Commonmodel->Insert_record('cargo.saimtech_rate', $data);
-
 			$data = array(
 				'customer_id'           => $customer_id,
 				'service_id'            => 4,
@@ -601,14 +750,12 @@ class Customer extends CI_Controller
 			);
 			$rate_id = $this->Commonmodel->Insert_record('cargo.saimtech_rate', $data);
 			$this->db->trans_complete();
-
 			$message = "<p class='alert alert-success'>Successfully Done</p>";
 			redirect(base_url() . 'Customer');
 		} else {
 			echo "<p class='alert alert-danger'>Something Went Wrong Please Try Again</p>";
 		}
 	}
-
 	/*public function add_customer()
 	{
 		$brand_city 	 	     = $this->input->post('brand_city');
@@ -716,7 +863,6 @@ class Customer extends CI_Controller
 				'modify_by'         => 1
 			);
 			$user_id = $this->Commonmodel->Insert_record('saimtech_user', $data);
-
 			$data = array(
 				'customer_id'           => $customer_id,
 				'service_id'            => 1,
@@ -999,7 +1145,6 @@ class Customer extends CI_Controller
 			redirect('Customer/add_customer_view/2');
 		}
 	}*/
-
 	public function edit_customer_view($customer_id)
 	{
 		//$get_rate_id=$this->Commonmodel->Get_record_by_double_condition_array('saimtech_rate', 'customer_id', $customer_id, 'is_enable', 1);
@@ -1012,7 +1157,6 @@ class Customer extends CI_Controller
 		$data['reference_data'] = $this->Commonmodel->Get_record_by_double_condition('acc_references', 'reference_type', 'Emp', 'is_enable', 1);
 		$this->load->view('module_customer/editcustomerView', $data);
 	}
-
 	public function edit_customer()
 	{
 		$message                 = "";
@@ -1055,7 +1199,6 @@ class Customer extends CI_Controller
 		$user_password           = $this->input->post('user_password');
 		$date 			         = date('Y-m-d H:i:s');
 		$api_key                 = uniqid();
-
 		if ($pay_mode_id == "1") {
 			$paymode = "Account";
 		} else if ($pay_mode_id == "2") {
@@ -1067,9 +1210,7 @@ class Customer extends CI_Controller
 		} else if ($pay_mode_id == "5") {
 			$paymode = "FOC";
 		}
-
 		//$faf_date = $is_faf == 1 ? $faf_date : '0000-00-00';
-
 		if ($customer_id != "" && $brand_name != "" && $brand_city != "" &&  $brand_cnic != "" && $service_type != "") {
 			//$this->db->save_queries = TRUE;
 			//$this->db->trans_start();
@@ -1115,15 +1256,12 @@ class Customer extends CI_Controller
 			//echo $this->db->last_query();
 			$this->update_customer_services($customer_id);
 			//$this->db->trans_complete();
-
 			$message = "<p class='alert alert-success'>Successfully Done</p>";
 			redirect(base_url() . 'Customer/edit_customer_view/' . $customer_id);
 		} else {
-
 			echo "<p class='alert alert-danger'>Something Went Wrong Please Try Again</p>" . $service_type;
 		}
 	}
-
 	public function check_username()
 	{
 		$username = $this->input->post('username');
@@ -1135,26 +1273,20 @@ class Customer extends CI_Controller
 		}
 		echo ($check);
 	}
-
 	public function zone_wise_rate_view($customer_id)
 	{
 		if ($customer_id) {
-
 			$data['service_data'] = $this->Commonmodel->Get_record_by_condition('acc_services', 'is_enable', 1);
 			$data['customer_id'] = $customer_id;
-
 			$data['rate_data'] = $this->Customermodel->Get_Account_Rates($customer_id);
 			$data['locs'] = $this->Commonmodel->Get_record_by_double_condition('acc_city', 'is_enable', 1, 'is_bookable', 1);
-
 			/*$data['rate_type_list'] = $this->rate_type;
 					$data['zone_type_region_list'] = $this->zone_type_region;
 					$data['zone_type_tranist_list'] = $this->zone_type_tranist;
 					$data['zones_list'] = $this->zones;
 					$data['zone_ex_list'] = $this->zone_ex;
-					
 					$data['zone_type_list'] = $this->zone_type;
 				$data['zone_list'] = $this->zone;*/
-
 			$data['zone_type'] = $this->Commonmodel->Get_record_by_double_condition('acc_types', 'is_enable', 1, 'acc_type', 'zone_type');
 			$data['zone_ex'] = $this->Commonmodel->Get_record_by_double_condition('acc_types', 'is_enable', 1, 'acc_type', 'zone_ex');
 			$data['zone_tranist'] = $this->Commonmodel->Get_record_by_double_condition('acc_types', 'is_enable', 1, 'acc_type', 'zone_tw');
@@ -1162,13 +1294,11 @@ class Customer extends CI_Controller
 			$data['zone'] = $this->Commonmodel->Get_record_by_double_condition('acc_types', 'is_enable', 1, 'acc_type', 'zone');
 			$data['rate_types'] = $this->Commonmodel->Get_record_by_double_condition_array('acc_types', 'is_enable', 1, 'acc_type', 'rate_type');
 			$data['loc_types'] = $this->Commonmodel->Get_record_by_double_condition_array('acc_types', 'is_enable', 1, 'acc_type', 'loc_type');
-
 			$this->load->view('module_customer/ratecreateView', $data);
 		} else {
 			echo ("<center><h1><mark>Access Blocked.....</mark></h1></center>");
 		}
 	}
-
 	public function add_article()
 	{
 		$in_customer_id = $this->input->post('customer_id');
@@ -1180,7 +1310,6 @@ class Customer extends CI_Controller
 		$in_art_end_date = $this->input->post('art_end_date');
 		$in_rate_id = $this->input->post('art_rate_id');
 		$in_art_id = $this->input->post('art_id');
-
 		if (!strlen($in_art_id) > 0) {
 			$art = array(
 				'customer_id' => $in_customer_id,
@@ -1198,7 +1327,6 @@ class Customer extends CI_Controller
 			);
 			$this->Commonmodel->Update_record('acc_customer_articles', 'acc_article_id', $in_art_id, $art);
 		}
-
 		if (!strlen($in_rate_id) > 0) {
 			$rate = array(
 				'rate_type'				=> 'AR',
@@ -1230,17 +1358,14 @@ class Customer extends CI_Controller
 			);
 			$this->Commonmodel->Update_record('acc_rates', 'rate_id', $in_rate_id, $rate);
 		}
-
 		redirect('customer/zone_wise_rate_view/' . $in_customer_id);
 	}
-
 	public function get_article()
 	{
 		$rate_id = $this->input->get('rate_id');
 		$art = $this->Customermodel->Get_Article_By_Rateid($rate_id);
 		echo json_encode($art);
 	}
-
 	public function add_rates()
 	{
 		$p_min_wgt			= $this->input->post('min_wgt');
@@ -1256,10 +1381,8 @@ class Customer extends CI_Controller
 		$p_zone_type		= $this->input->post('zone_type');
 		$p_zone_list		= $this->input->post('zonelist');
 		$p_rate_id			= !empty($this->input->post('rate_id')) ? $this->input->post('rate_id') : 0;
-
 		$rate_id 			= 0;
 		$chk 				= 0;
-
 		if ($p_rate_id == 0) {
 			if ($p_rate_type == "FR") {
 				$fr_zone = explode("|", $p_zone_list);
@@ -1278,7 +1401,6 @@ class Customer extends CI_Controller
 							'start_date'			=> $p_start_date,
 							'end_date'				=> $p_end_date
 						);
-
 						$chk = $this->Commonmodel->Duplicate_check_six('acc_rates', 'customer_id', 'is_enable', 1, $p_customer_id, 'service_id', $p_service_type, 'rate_type', $p_rate_type, 'o_or_z', $z, 'd_or_zt', substr($z, 0, 1));
 						if ($chk == 0) {
 							$rate_id = $this->Commonmodel->Insert_record('acc_rates', $data);
@@ -1301,14 +1423,12 @@ class Customer extends CI_Controller
 					'start_date'			=> $p_start_date,
 					'end_date'				=> $p_end_date
 				);
-
 				$chk = $this->Commonmodel->Duplicate_check_six('acc_rates', 'customer_id', 'is_enable', 1, $p_customer_id, 'service_id', $p_service_type, 'rate_type', $p_rate_type, 'o_or_z', $p_zone, 'd_or_zt', $p_zone_type);
 				if ($chk == 0) {
 					$rate_id = $this->Commonmodel->Insert_record('acc_rates', $data);
 				} else {
 					$rate_id = 0;
 				}
-
 				$data = array(
 					'rate_type'				=> $p_rate_type,
 					'customer_id'			=> $p_customer_id,
@@ -1322,7 +1442,6 @@ class Customer extends CI_Controller
 					'start_date'			=> $p_start_date,
 					'end_date'				=> $p_end_date
 				);
-
 				$chk = $this->Commonmodel->Duplicate_check_six('acc_rates', 'customer_id', 'is_enable', 1, $p_customer_id, 'service_id', $p_service_type, 'rate_type', $p_rate_type, 'o_or_z', $p_zone_type, 'd_or_zt', $p_zone);
 				if ($chk == 0) {
 					$rate_id = $this->Commonmodel->Insert_record('acc_rates', $data);
@@ -1343,7 +1462,6 @@ class Customer extends CI_Controller
 					'start_date'			=> $p_start_date,
 					'end_date'				=> $p_end_date
 				);
-
 				$chk = $this->Commonmodel->Duplicate_check_six('acc_rates', 'customer_id', 'is_enable', 1, $p_customer_id, 'service_id', $p_service_type, 'rate_type', $p_rate_type, 'o_or_z', $p_zone, 'd_or_zt', $p_zone_type);
 				if ($chk == 0) {
 					$rate_id = $this->Commonmodel->Insert_record('acc_rates', $data);
@@ -1360,12 +1478,9 @@ class Customer extends CI_Controller
 				'start_date'			=> $p_start_date,
 				'end_date'				=> $p_end_date
 			);
-
 			$rate_id = $this->Commonmodel->Update_record('acc_rates', 'rate_id', $p_rate_id, $data);
 		}
-
 		$this->update_customer_services($p_customer_id);
-
 		if ($rate_id > 0) {
 			$message = "<p class='alert alert-success'>Successfully Done</p>";
 			redirect(base_url() . 'Customer/zone_wise_rate_view/' . $p_customer_id);
@@ -1374,7 +1489,6 @@ class Customer extends CI_Controller
 			redirect(base_url() . 'Customer/zone_wise_rate_view/' . $p_customer_id);
 		}
 	}
-
 	public function add_faf()
 	{
 		$chk = 0;
@@ -1383,7 +1497,6 @@ class Customer extends CI_Controller
 		$faf = $this->input->post("faf");
 		$fsd = $this->input->post("faf_start_date");
 		$fed = $this->input->post("faf_end_date");
-
 		if ($fid > 0) {
 			$data = array(
 				'faf' => ($faf / 100),
@@ -1405,178 +1518,125 @@ class Customer extends CI_Controller
 			);
 			$chk = $this->Commonmodel->Insert_record('acc_customer_faf', $data);
 		}
-
 		redirect(base_url() . 'Customer/edit_customer_view/' . $cid);
 	}
-
 	public function update_customer_services($cid)
 	{
 		$srvs = $this->Commonmodel->Raw_Query_Execution("SELECT GROUP_CONCAT(DISTINCT service_id) as 'srs' FROM acc_rates WHERE customer_id = " . $cid . " AND is_enable = 1;");
-
 		$data = array('services' => $srvs[0]->srs);
-
 		$this->Commonmodel->Update_record('acc_customers', 'customer_id', $cid, $data);
 		$this->db->query("CALL `tmaccounts_cargo_cust_services_update`(" . $cid . ");");
 	}
-
 	public function suspend_faf()
 	{
 		$chk = 0;
-
 		$cf_id		= $this->input->post('cf_id');
-
 		$data = array(
 			'is_enable'	=> 0,
 			'modify_by' => $_SESSION['user_id'],
 			'modify_at' => date('Y-m-d H:i:s')
 		);
-
 		$chk = $this->Commonmodel->Update_record('acc_customer_faf', 'acc_cf_id', $cf_id, $data);
-
 		echo $chk;
 	}
-
 	public function suspend_rate()
 	{
 		$chk = 0;
-
 		$customer_id	= $this->input->post('customer_id');
 		$rate_id		= $this->input->post('rate_id');
-
 		$data = array('is_enable'	=> 0);
-
 		$chk = $this->Commonmodel->Update_record('acc_rates', 'rate_id', $rate_id, $data);
-
 		$this->update_customer_services($customer_id);
-
 		echo $chk;
 	}
-
 	public function enable_faf()
 	{
 		$chk = 0;
-
 		$cf_id		= $this->input->post('cf_id');
-
 		$data = array(
 			'is_enable'	=> 1,
 			'modify_by' => $_SESSION['user_id'],
 			'modify_at' => date('Y-m-d H:i:s')
 		);
-
 		$chk = $this->Commonmodel->Update_record('acc_customer_faf', 'acc_cf_id', $cf_id, $data);
 		echo $chk;
 	}
-
 	public function suspend_art_rate()
 	{
 		$chk = 0;
-
 		$customer_id	= $this->input->post('customer_id');
 		$rate_id		= $this->input->post('rate_id');
 		$art = $this->Customermodel->Get_Article_By_Rateid($rate_id)[0];
-
 		$data = array('is_enable'	=> 0);
 		$chk = $this->Commonmodel->Update_record('acc_customer_articles', 'acc_article_id', $art->acc_article_id, $data);
 		$chk = $this->Commonmodel->Update_record('acc_rates', 'rate_id', $rate_id, $data);
-
 		$this->update_customer_services($customer_id);
-
 		echo $chk;
 	}
-
 	public function suspend_edit_rate()
 	{
 		$chk = 0;
-
 		$customer_id	= $this->input->post('customer_id');
 		$rate_id		= $this->input->post('rate_id');
-
 		$data = array('is_enable'	=> 0);
 		$chk = $this->Commonmodel->Update_record('acc_rates', 'rate_id', $rate_id, $data);
-
 		$this->update_customer_services($customer_id);
 		echo $chk;
 	}
-
 	public function enable_rate()
 	{
 		$chk = 0;
-
 		$customer_id	= $this->input->post('customer_id');
 		$rate_id		= $this->input->post('rate_id');
-
 		$data = array('is_enable'	=> 1);
-
 		$chk = $this->Commonmodel->Update_record('acc_rates', 'rate_id', $rate_id, $data);
-
 		$this->update_customer_services($customer_id);
-
 		echo $chk;
 	}
-
 	public function enable_art_rate()
 	{
 		$chk = 0;
-
 		$customer_id	= $this->input->post('customer_id');
 		$rate_id		= $this->input->post('rate_id');
 		$art = $this->Customermodel->Get_Article_By_Rateid($rate_id)[0];
-
 		$data = array('is_enable'	=> 1);
 		$chk = $this->Commonmodel->Update_record('acc_customer_articles', 'acc_article_id', $art->acc_article_id, $data);
 		$chk = $this->Commonmodel->Update_record('acc_rates', 'rate_id', $rate_id, $data);
-
 		$this->update_customer_services($customer_id);
-
 		echo $chk;
 	}
-
 	public function delete_rate()
 	{
 		$chk = 0;
-
 		$customer_id	= $this->input->post('customer_id');
 		$rate_id		= $this->input->post('rate_id');
-
 		$chk = $this->Commonmodel->Delete_record('acc_rates', 'rate_id', $rate_id);
-
 		$this->update_customer_services($customer_id);
-
 		echo $chk;
 	}
-
 	public function delete_faf()
 	{
 		$chk = 0;
-
 		$cf_id		= $this->input->post('cf_id');
-
 		$data = array(
 			'is_enable'	=> 0,
 			'modify_by' => $_SESSION['user_id'],
 			'modify_at' => date('Y-m-d H:i:s')
 		);
-
 		$chk = $this->Commonmodel->Delete_record('acc_customer_faf', 'acc_cf_id', $cf_id, $data);
 		echo $chk;
 	}
-
 	public function delete_art_rate()
 	{
 		$chk = 0;
-
 		$customer_id = $this->input->get('customer_id');
 		$rate_id = $this->input->get('rate_id');
 		$art = $this->Customermodel->Get_Article_By_Rateid($rate_id)[0];
 		$chk = $this->Commonmodel->Delete_record('acc_customer_articles', 'acc_article_id', $art->acc_article_id);
 		$chk = $this->Commonmodel->Delete_record('acc_rates', 'rate_id', $rate_id);
-
 		$this->update_customer_services($customer_id);
 		echo $chk;
 	}
-
-
 	public function add_zone_wise_rate()
 	{
 		$service_type           = $this->input->post('service_type');
@@ -1794,7 +1854,6 @@ class Customer extends CI_Controller
 			echo ("Fail");
 		}
 	}
-
 	public function redraw_table_zone_rate($customer_id)
 	{
 		$query = "SELECT *, `saimtech_rate`.`is_enable` as rate_status  FROM `saimtech_rate` INNER JOIN saimtech_service ON saimtech_service.service_id=saimtech_rate.service_id WHERE customer_id=" . $customer_id;
@@ -1840,19 +1899,15 @@ class Customer extends CI_Controller
 			}
 		}
 	}
-
 	public function destination_wise_rate_view($customer_id, $service_type)
 	{
 		$data['city_data'] = $this->Commonmodel->Get_record_by_condition('acc_city', 'is_enable', 1);
 		$data['customer_id'] = $customer_id;
 		$data['service_type'] = $service_type;
 		$data['service_data'] = $this->Commonmodel->Get_record_by_condition('saimtech_service', 'is_enable', 1);
-
-
 		$data['destination_data'] = $this->Commonmodel->Get_Destination_Wise_Rate($customer_id, $service_type);
 		$this->load->view('module_customer/dratecreateView', $data);
 	}
-
 	public function destination_wise_rate()
 	{
 		$service_type   = $this->input->post('service_type');
@@ -1868,8 +1923,6 @@ class Customer extends CI_Controller
 		$destination    = $this->input->post('destination');
 		$j              = sizeof($destination);
 		if ($service_type != "" && $customer_id != "" && $wgt1 != "" &&  $rate1 != "" &&  $wgt2 != "" &&  $rate2 != "" && $addwgt != "" && $addrate != "" && $gst != "" && $origin != "" && $j != "") {
-
-
 			for ($i = 0; $i <= $j; $i++) {
 				if ($destination[$i] != "ex_punjab" && $destination[$i] != "ex_sindh" && $destination[$i] != "ex_kpk") {
 					$check = $this->Commonmodel->five_double_check('saimtech_destination_rate', 'service_id', $service_type, 'customer_id', $customer_id, 'dest_city_id', $destination[$i], 'origin_city_id', $origin, 'is_enable', 1);
@@ -1936,11 +1989,9 @@ class Customer extends CI_Controller
 					}
 				}
 			}
-
 			$this->redraw_table_destination_wise($customer_id, $service_type);
 		}
 	}
-
 	public function redraw_table_destination_wise($customer_id, $service_type)
 	{
 		$destination_data = $this->Commonmodel->Get_Destination_Wise_Rate($customer_id, $service_type);
@@ -1966,7 +2017,6 @@ class Customer extends CI_Controller
 			}
 		}
 	}
-
 	public function update_status_customer($customerid, $status)
 	{
 		$this->db->trans_start();
@@ -1980,7 +2030,6 @@ class Customer extends CI_Controller
 				'modify_by'                 => $_SESSION['user_id'],
 				'modify_date'               => date('Y-m-d H:i:s ')
 			);
-
 			$this->Commonmodel->Update_record('cargo.saimtech_customer', 'customer_id', $customerid, $data);
 			//print_r($data);
 			//$data =array(

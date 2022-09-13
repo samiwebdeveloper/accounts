@@ -210,10 +210,10 @@ $this->load->view('inc/header');
 
 		function rate_cus() {
 			$('#data_list').DataTable().destroy();
-
-			//$('#customer').change(function(e){
-			$('#data_panel').DataTable().destroy();
 			$("#summary_data").html("");
+			$("tbody").html("");
+			data_arr = [];
+		    order_others = '';
 
 			customer = $("#customer").val();
 			$.ajax({
@@ -314,7 +314,7 @@ $this->load->view('inc/header');
 							'order_fuel': obj[count].order_fuel,
 							'order_faf': obj[count].order_faf,
 							'order_others': order_others,
-							'action': '<button  id="btn_' + count + '" onclick="remove_from_invoice()" class="btn btn-danger  btn-xs ">Release</button>'
+							'action': '<button   class="btn btn-danger btn_remove  btn-xs ">Release</button>'
 						};
 						data_arr.push(sub_array);
 					}
@@ -453,21 +453,20 @@ $this->load->view('inc/header');
 
 		}
 
-		function remove_from_invoice() {
-			$('#data_list tbody').on('click', 'td', function() {
-			var	index_no = table.row($(this).parents('tr')).index();
-				console.log(index_no);
-				data_arr.splice(index_no, 1)
-				data_array(data_arr)
-			});
-		}
+		$(document).on('click', '.btn_remove', function() {
+			var index = $(this).closest('tr').index();
+			data_arr.splice(index, 1)
+			data_array(data_arr)
+		});
 
 		$("form").on("submit", function(event) {
 			event.preventDefault();
 		});
 
 		function complete_invoice() {
+			var other=$("#other :selected").val();
 			var form_array = $("form").serialize();
+
 			var form_data_array = form_array.split("&");
 			var TableData = new Array();
 			$('.table_data tr').each(function(row, tr) {
@@ -483,6 +482,7 @@ $this->load->view('inc/header');
 				order_acc: data_arr,
 				summary: TableData,
 				form_data_array: form_data_array,
+				other: other,
 			};
 			$("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-warning'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Please Wait .</div></div>");
 			$.ajax({
@@ -490,6 +490,13 @@ $this->load->view('inc/header');
 				type: "POST",
 				data: mydata,
 				success: function(data) {
+					
+					// if (data==1) {
+					// 	$("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-success'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Records has saved.</div></div>");
+					// 	setTimeout(function() {
+					// 		location.reload();
+					// 	}, 30000);
+					// }
 					// location.replace("<?php echo base_url(); ?>Invoice/create_invoice");
 				}
 			});
@@ -538,7 +545,7 @@ $this->load->view('inc/header');
 
 				}
 			});
-
+			
 			document.getElementById("customer").focus();
 			$('#data_panel').saimtech();
 			$('#pending_panel').saimtech();

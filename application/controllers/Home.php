@@ -10,6 +10,7 @@
 			parent::__construct();
 			$this->load->model('Commonmodel');
 			$this->load->model('Bookingmodel');
+			$this->load->library('pagination');
 		}
 		
 		
@@ -18,9 +19,14 @@
 			$this->load->view('dashboardView');
 		}
 		public function load_data(){
-			
-			$data['cns']=$this->Bookingmodel->Get_CNs_to_Hard_Check_Summary();
+			$config['base_url'] = 'http://localhost/cargo/accounts/home';
+			$config['total_rows'] = 200;
+			$config['per_page'] = 20;
+			$this->pagination->initialize($config);
+			echo $this->pagination->create_links();
+exit;
 			$data['chkd_cns']=$this->Bookingmodel->Get_CNs_Hard_Checked_Summary();
+			$data['cns']=$this->Bookingmodel->Get_CNs_to_Hard_Check_Summary();
 			echo json_encode($data);
 		}
 		

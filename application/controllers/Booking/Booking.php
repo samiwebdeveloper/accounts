@@ -22,6 +22,93 @@
 				$check=0;} else {$check=1; }
 			echo $check;}
 		}
+
+	public function reconcile_cash_booking()
+	{
+		$startdate 	         = $this->input->post('start_date');
+		$enddate             = $this->input->post('end_date');
+		if ($startdate != "" && $enddate != "") {
+			$data['startdate']   = $startdate;
+			$data['enddate']     = $enddate;
+			$data['o_city']      = $_POST['o_city'];
+			$data['city_data']   = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_city', 'is_enable', 1);
+			$data['order_data']  = $this->Bookingmodel->Get_order_Data_By_Date_Range($startdate, $enddate, $_POST['o_city']);
+		} else {
+			$startdate 	       = date('Y-m-d', strtotime('-7 days'));
+			$enddate           = date('Y-m-d');
+			$city              = $_SESSION['origin_id'];
+			$data['startdate'] = $startdate;
+			$data['enddate']   = $enddate;
+			$data['o_city']    = $city;
+			$data['city_data'] = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_city', 'is_enable', 1);
+			$data['order_data'] = $this->Bookingmodel->Get_order_Data_By_Date_Range($startdate, $enddate, $city);
+		}
+		$this->load->view('module_booking/reconcilecashbooking', $data);
+	}
+	
+		
+
+	public function cash_booking_report()
+	{
+
+		$startdate 	  = $this->input->post('start_date');
+		$enddate      = $this->input->post('end_date');
+
+		if ($startdate != "" && $enddate != "") {
+			$data['startdate']  = $startdate;
+			$data['enddate']    = $enddate;
+			$data['o_city']     = $_POST['o_city'];
+			$data['city_data']  = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_city', 'is_enable', 1);
+			$data['order_data'] = $this->Bookingmodel->Get_cash_booking_report($startdate, $enddate, $_POST['o_city']);
+		} else {
+			$startdate 	       = date('Y-m-d', strtotime('-7 days'));
+			$enddate           = date('Y-m-d');
+			$city              = $_SESSION['origin_id'];
+			$data['startdate'] = $startdate;
+			$data['enddate']   = $enddate;
+			$data['o_city']    = $city;
+			$data['city_data'] = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_city', 'is_enable', 1);
+			$data['order_data']= $this->Bookingmodel->Get_cash_booking_report($startdate, $enddate, $city);
+		}
+		$this->load->view('module_booking/cashbookingreport', $data);
+	}
+	
+		
+	public function cash_receive()
+	{
+		
+		$cn_outstanding_balance = $this->Bookingmodel->get_cash_collection_balance($_POST['order_id']);
+		$data=[];
+		if(!empty($cn_outstanding_balance)){
+
+			$data = array(
+				"amount" => $_POST['amount'],
+				"order_id" => $_POST['order_id'],
+				"collected_by" => $_POST['collected_by'],
+				"date" => $_POST['date'],
+				"balance" =>$cn_outstanding_balance->balance+$_POST['amount'],
+				"remarks" => $_POST['remarks'],
+				"created_by" => $_POST['created_by']
+			);
+		}else{
+			$data = array(
+				"amount" => $_POST['amount'],
+				"order_id" => $_POST['order_id'],
+				"collected_by" => $_POST['collected_by'],
+				"date" => $_POST['date'],
+				"balance" =>$_POST['amount'],
+				"remarks" => $_POST['remarks'],
+				"created_by" => $_POST['created_by']
+			);
+		}
+		
+		$insert_id = $this->Commonmodel->Insert_record('cash_collection',$data);
+		if ($insert_id) {
+			echo '<div class="   alert alert-success" role="alert"> <button class="close "  data-dismiss="alert"></button><strong>Successfully!: </strong>Record is saved.</div>';
+		} else {
+			echo '<div class="   alert alert-danger" role="alert"> <button class="close "  data-dismiss="alert"></button><strong>Alert!: </strong>Record is not saved.</div>';
+		}
+	}
 		
 		public function check_manual_cn_e(){
 			$manual_cn= $this->input->post('manual_cn'); 
@@ -133,10 +220,10 @@
 
 	public function edit_booking_view()
 	{
-		$cn = $this->uri->segment(4);
+		$order_id = $this->uri->segment(4);
 
-		if ($cn > 0) {
-			$data['order_data'] = $this->Commonmodel->Get_record_by_condition('acc_orders', 'order_id', $cn);
+		if ($order_id > 0) {
+			$data['order_data'] = $this->Commonmodel->Get_record_by_condition('acc_orders', 'order_id', $order_id);
 			if (sizeof($data['order_data']) > 0) {
 				$data['shipment_types'] = $this->Commonmodel->Get_record_by_condition('acc_services', 'is_enable', 1);
 				$data['customer_data'] = $this->Commonmodel->Get_record_by_condition('acc_customers', 'is_enable', 1);
@@ -146,6 +233,7 @@
 				unset($_SESSION['cn_edit']);
 				unset($_SESSION['mcn_edit']);
 			}
+		
 		}
 	}
 		

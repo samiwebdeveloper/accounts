@@ -46,6 +46,7 @@
     <script src="<?php echo base_url();?>assets/plugins/jquery-actual/jquery.actual.min.js"></script>
     <script src="<?php echo base_url();?>assets/plugins/jquery-scrollbar/jquery.scrollbar.min.js"></script>
           <script src="<?php echo base_url();?>assets/plugins/select2/js/select2.min.js"></script>
+          <script src="<?php echo base_url();?>assets/plugins/jquery-validation/js/jquery.validate.min.js"></script>
 
     <!-- END VENDOR JS -->
     <!-- BEGIN CORE TEMPLATE JS -->

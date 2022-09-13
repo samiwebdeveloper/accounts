@@ -109,6 +109,15 @@
 							<a href="<?php echo base_url(); ?>Booking/Booking/select">Select Booking</a>
 							<span class="icon-thumbnail">SLB</span>
 						</li>
+						<li class="">
+							<a href="<?php echo base_url(); ?>Booking/Booking/reconcile_cash_booking">Reconcile Cash Booking</a>
+							<span class="icon-thumbnail">SLB</span>
+						</li>
+
+						<li class="">
+							<a href="<?php echo base_url(); ?>Booking/Booking/cash_booking_report">Cash Booking Report</a>
+							<span class="icon-thumbnail">CBR</span>
+						</li>
 					</ul>
 				</li>
 				<?php if ($_SESSION['is_supervisor'] == 1) { ?>
@@ -191,6 +200,7 @@
 						</ul>
 						</li>-->
 
+				
 					<li class="m-t-10">
 						<a href="javascript:;">
 							<span class="title">Customer Account</span>
@@ -204,7 +214,33 @@
 								<span class="icon-thumbnail">MCA</span>
 							</li>
 							<li class="">
+								<a href="<?php echo base_url(); ?>customer/add_customer_user">Customer Portal User</a>
+								<span class="icon-thumbnail">CPU</span>
+							</li>
+							<li class="">
 								<a href="<?php echo base_url(); ?>Customer/rate">Manage Customer Rates</a>
+								<span class="icon-thumbnail">MCR</span>
+							</li>
+							<li class="">
+								<a href="<?php echo base_url(); ?>Invoice/fetch_record">Customer Ledger</a>
+								<span class="icon-thumbnail">CRL</span>
+							</li>
+						</ul>
+					</li>
+
+					<li class="m-t-10">
+						<a href="javascript:;">
+							<span class="title">Upload Image</span>
+							<span class=" arrow "></span>
+						</a>
+						<span class="bg-success icon-thumbnail themebtn"><i class="pg-bag"></i></span>
+						<ul class="sub-menu">
+							<li class="">
+								<a href="<?php echo base_url(); ?>ImageUpload/single_img_upload">Single Image</a>
+								<span class="icon-thumbnail">MCA</span>
+							</li>
+							<li class="">
+								<a href="<?php echo base_url(); ?>ImageUpload/multiple_img_upload">Multiple Image</a>
 								<span class="icon-thumbnail">MCR</span>
 							</li>
 						</ul>
@@ -222,26 +258,31 @@
 								<a href="<?php echo base_url(); ?>Franchisee">Manage Franchisee Accounts</a>
 								<span class="icon-thumbnail">MFA</span>
 							</li>
-							
+
 						</ul>
 					</li>
 
 				<?php } ?>
 
 				<li class="m-t-10">
-						<a href="javascript:;">
-							<span class="title">CN Book</span>
-							<span class=" arrow "></span>
-						</a>
-						<span class="bg-success icon-thumbnail themebtn"><i class="pg-calender"></i></span>
-						<ul class="sub-menu">
-							<li class="">
-								<a href="<?php echo base_url(); ?>CnBook/default_load">CN Book</a>
-								<span class="icon-thumbnail">CNB</span>
-							</li>
-						</ul>
-					</li>
-				
+					<a href="javascript:;">
+						<span class="title">CN Book</span>
+						<span class=" arrow "></span>
+					</a>
+					<span class="bg-success icon-thumbnail themebtn"><i class="pg-calender"></i></span>
+					<ul class="sub-menu">
+						<li class="">
+							<a href="<?php echo base_url(); ?>CnBook/default_load">CN Book</a>
+							<span class="icon-thumbnail">CNB</span>
+						</li>
+
+						<li class="">
+							<a href="<?php echo base_url(); ?>Rider">Add Rider</a>
+							<span class="icon-thumbnail">ARD</span>
+						</li>
+					</ul>
+				</li>
+
 				<li class="m-t-10">
 					<a href="javascript:;">
 						<span class="title">Tools</span>
@@ -253,6 +294,10 @@
 							<li class="">
 								<a href="<?php echo base_url(); ?>Rider">Rider</a>
 								<span class="icon-thumbnail">MR</span>
+							</li>
+							<li class="">
+								<a href="<?php echo base_url(); ?>customer/add_customer_user"><a>Add Customer User</a>
+								<span class="icon-thumbnail">CRL</span>
 							</li>
 							<li class="">
 								<a href="<?php echo base_url(); ?>Route">Route</a>
@@ -302,10 +347,10 @@
 			</div>
 			<div class="d-flex align-items-center">
 				<!-- START User Info-->
-				<div class="pull-left p-r-10 fs-14 font-heading d-lg-block d-none">
+				<div class="pull-left p-r-10 fs-14 font-heading d-lg-block d-block">
 					<span class="semi-bold"><?php echo $_SESSION['user_name']; ?> </span>
 				</div>
-				<div class="dropdown pull-right d-lg-block d-none">
+				<div class="dropdown pull-right d-lg-block d-block">
 					<button class="profile-dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<span class="thumbnail-wrapper d32 circular inline">
 							<img src="https://cdn.iconscout.com/icon/free/png-256/laptop-user-1-1179329.png" alt="" data-src="https://cdn.iconscout.com/icon/free/png-256/laptop-user-1-1179329.png" data-src-retina="<?php echo base_url(); ?>assets/img/profiles/avatar_small2x.jpg" width="32" height="32">

@@ -180,6 +180,13 @@ class Commonmodel extends CI_Model
 		return $query->result();
 	}
 
+	public function Get_all_record_array($tablename)
+	{
+		$this->check_session();
+		$query = $this->db->get($tablename);
+		return $query->result();
+	}
+
 	public function Get_record_by_condition($tablename, $columnname, $conditionvalue)
 	{
 		$this->check_session();

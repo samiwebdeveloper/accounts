@@ -335,6 +335,7 @@ $this->load->view('inc/header');
 						data_arr.push(sub_array);
 
 					}
+					console.log(data_arr);
 					var table = $('#data_panel').DataTable({
 						lengthMenu: [
 							[25, 50, -1],

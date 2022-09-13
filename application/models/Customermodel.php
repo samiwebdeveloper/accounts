@@ -2,6 +2,12 @@
 class Customermodel extends CI_Model
 {
 
+	public function Get_user_all_record()
+	{
+		$query = "SELECT u.*,c.customer_name,city.city_name,ops.oper_user_name from cargo.saimtech_user u INNER JOIN cargo.saimtech_customer c on u.customer_id=c.customer_id INNER JOIN cargo.saimtech_city city on u.user_city =city.city_id INNER JOIN cargo.saimtech_oper_user ops on u.created_by =ops.oper_user_id order by c.customer_id";
+		$res = $this->db->query($query);
+		return $res->result();
+	}
 	public function Get_Customers_Data_By_Created_ID($created_id)
 	{
 		$query = "SELECT *  FROM `acc_customers` where created_by=?

@@ -2,7 +2,6 @@
 error_reporting(0);
 $this->load->view('inc/header');
 ?>
-
 <script type="text/javascript">
 	$(document).ready(function() {
 		var table = $('#myTable').DataTable({
