@@ -7,7 +7,6 @@ $this->load->view('inc/header');
         font-size: 13px !important;
         padding-top: 12px !important;
     }
-
     .radio,
     .checkbox {
         margin-bottom: 0px;
@@ -15,7 +14,6 @@ $this->load->view('inc/header');
         padding-left: 13px;
         padding-top: 8px;
     }
-
     .selected {
         color: white;
         background: #1f3953 !important;
@@ -55,7 +53,7 @@ $this->load->view('inc/header');
                                         <div class="form-group-attached">
                                             <form action="">
                                                 <div class="row clearfix">
-                                                    <div class="col-sm-10">
+                                                    <div class="col-sm-5">
                                                         <div class="form-group form-group-default required">
                                                             <select class="form-control" id="reason" tabindex=2 style="width:100% !important ;">
                                                                 <option value="" selected>Select Credit Note Reason </option>
@@ -70,7 +68,7 @@ $this->load->view('inc/header');
                                                             </select>
                                                         </div>
                                                     </div>
-                                                    <div class="col-sm-2">
+                                                    <div class="col-sm-3">
                                                         <button type="submit" class="btn btn-primary" onclick="create_credit_note()" id="btnvrnote" style="height:100%">Create Credit Note</button>
                                                     </div>
                                             </form>
@@ -90,7 +88,7 @@ $this->load->view('inc/header');
                                                 <th>Service </th>
                                                 <th>Pieces </th>
                                                 <th>Weight </th>
-                                                <th class="bg-info text-white">Total </th>
+                                                <th class="bg-primary text-white">Total </th>
                                                 <th>Sc </th>
                                                 <th>osa </th>
                                                 <th>Osa|Sd </th>
@@ -116,7 +114,7 @@ $this->load->view('inc/header');
                                                         echo ("<td class='padd_18'>" . $rows->serivce_name . "</td>");
                                                         echo ("<td class='padd_18 text-right' width='15px'>" . number_format($rows->pcs) . "</td>");
                                                         echo ("<td class='padd_18 text-right' width='15px'>" . number_format($rows->weight) . "</td>");
-                                                        echo ("<td class=' padd_18 text-right bg-info text-white' width='15px'>" . number_format($rows->osa + $rows->gst + $rows->sc + $rows->osa + $rows->osa_sd + $rows->fuel + $rows->others + $rows->faf) . "</td>");
+                                                        echo ("<td class=' padd_18 text-right bg-primary text-white' width='15px'>" . number_format($rows->osa + $rows->gst + $rows->sc + $rows->osa + $rows->osa_sd + $rows->fuel + $rows->others + $rows->faf) . "</td>");
                                                         echo ("<td class='padd_18 text-right' width='15px'>" . number_format($rows->sc) . "</td>");
                                                         echo ("<td class='padd_18 text-right' width='15px'>" . number_format($rows->osa) . "</td>");
                                                         echo ("<td class='padd_18 text-right' width='15px'>" . number_format($rows->osa_sd) . "</td>");
@@ -155,18 +153,21 @@ $this->load->view('inc/footer');
         var invoice_id_string = invoice_id.toString();
         $("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-warning'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Please Wait .</div></div>");
         if (invoice_id.length != 0) {
+            event.preventDefault()
             if ($('#reason').val() != "") {
                 $.ajax({
                     url: "<?php echo base_url(); ?>Invoice/insert_credit_note",
                     type: "POST",
                     data: {
                         invoice_id: invoice_id_string,
+                        invoice_code: "<?php echo  $this->uri->segment(3) ?>",
                         reason: $('#reason').val()
                     },
+                 
                     success: function(data) {
                         $("#msg_div").html(data);
                         setTimeout(function() {
-                            location.reload();
+                           location.reload();
                         }, 1000);
                     },
                     error: function(error) {
@@ -177,7 +178,7 @@ $this->load->view('inc/footer');
                 $('form').submit(function(event) {
                     event.preventDefault()
                 })
-                $("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Minimum one reason  is required to create credit note.</div></div>");
+                $("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button> Reason  is required to create credit note.</div></div>");
             }
         } else {
             $('form').submit(function(event) {
@@ -196,8 +197,8 @@ $this->load->view('inc/footer');
         });
         var table = $('#myTable').DataTable({
             "lengthMenu": [
-                [20, 50, -1],
-                [20, 50, 'All']
+                [-1],
+                ['All']
             ],
             fixedHeader: true,
             "searching": true,

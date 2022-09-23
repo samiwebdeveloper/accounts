@@ -168,7 +168,6 @@ class Customer extends CI_Controller
 			echo "<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Something is wrong..</div></div>";
 		}
 	}
-
 	public function reset_user_pass()
 	{
 		$data = array(

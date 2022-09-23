@@ -1,7 +1,6 @@
 <?php
 class Customermodel extends CI_Model
 {
-
 	public function Get_user_all_record()
 	{
 		$query = "SELECT u.*,c.customer_name,city.city_name,ops.oper_user_name from cargo.saimtech_user u INNER JOIN cargo.saimtech_customer c on u.customer_id=c.customer_id INNER JOIN cargo.saimtech_city city on u.user_city =city.city_id INNER JOIN cargo.saimtech_oper_user ops on u.created_by =ops.oper_user_id order by c.customer_id";
@@ -15,7 +14,6 @@ class Customermodel extends CI_Model
 		$res = $this->db->query($query, array($created_id));
 		return $res->result();
 	}
-
 	public function Get_All_Customers()
 	{
 		$query = "SELECT *  FROM `acc_customers`
@@ -23,7 +21,6 @@ class Customermodel extends CI_Model
 		$res = $this->db->query($query);
 		return $res->result();
 	}
-
 	public function Get_All_Customers_By_Mixture($mixture)
 	{
 		$query = "SELECT *  FROM `acc_customers`
@@ -32,7 +29,6 @@ class Customermodel extends CI_Model
 		$res = $this->db->query($query);
 		return $res->result();
 	}
-
 	public function Get_Destination_Rate($customer_id)
 	{
 		$query = "SELECT
@@ -56,14 +52,12 @@ class Customermodel extends CI_Model
 		$res = $this->db->query($query);
 		return $res->result();
 	}
-
 	public function Get_Account_Rates($customer_id)
 	{
 		$query = "SELECT * FROM `customer_credit_rates` where `customer_id` = $customer_id;";
 		$res = $this->db->query($query);
 		return $res->result();
 	}
-
 	public function Get_Article_By_Rateid($rate_id)
 	{
 		$query = "SELECT * FROM acc_customer_articles a

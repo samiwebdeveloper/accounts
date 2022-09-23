@@ -1,7 +1,6 @@
 <?php
 error_reporting(0);
-// echo $o_customer;
-// exit;
+
 $this->load->view('inc/header');
 ?>
 
@@ -140,7 +139,7 @@ $this->load->view('inc/header');
                                                         $start_date = date('Y-m-d', strtotime("-10 days"));
                                                         $end_date = date('Y-m-d');
                                                     }
-                                                    // exit;
+                                                  
                                                     ?>
                                                     <input type="date" placeholder="Enter start date " class="form-control" required id="start_date" value="<?php echo $start_date; ?>" name="start_date">
                                                 </div>
@@ -181,7 +180,7 @@ $this->load->view('inc/header');
                                 <div class="card ">
                                     <div class="card-body">
                                         <div class="table-responsive ">
-                                            <table class="table table-bordered compact wrap dataTable no-footer" id="myTable" width="100%">
+                                            <table class="table table-bordered compact nowrap dataTable no-footer" id="myTable" width="100%">
                                                 <thead>
                                                     <tr>
                                                         <th width=10px> Sr#</th>
@@ -189,8 +188,13 @@ $this->load->view('inc/header');
                                                         <th> instrument no</th>
                                                         <th> cusomter name </th>
                                                         <th> Sale person </th>
-                                                        <th> amount </th>
+                                                        <th class='text-right'> amount </th>
+                                                        <th class='text-right'> Sales Tax </th>
+                                                        <th class='text-right'> Income Tax </th>
+                                                        <th class='text-right'> include tax   </th>
                                                         <th class='bg-primary text-white' style='box-shadow:5px 5px 10px #6d5eac;font-weight:600;font-size:13px;'> Balance </th>
+                                                        <th> bank </th>
+                                                        <th> remarks </th>
                                                         <th> created by </th>
                                                         <th> created date </th>
                                                     </tr>
@@ -202,15 +206,25 @@ $this->load->view('inc/header');
                                                             $i = $i + 1;
                                                             echo ("<tr>");
                                                             echo ("<td>" . $i . "</td>");
-                                                            echo ("<td>" . $rows->cl_instrument_type . "</td>");
+                                                            if ($rows->cl_instrument_type=="Invoice") {
+                                                                echo ("<td class='bg-primary text-white'>" . $rows->cl_instrument_type . "</td>");
+                                                            } else {
+                                                                echo ("<td>" . $rows->cl_instrument_type . "</td>");
+                                                            }
+                                                           
                                                             echo ("<td>" . $rows->cl_instrument_no . "</td>");
                                                             echo ("<td>" . $rows->cusomter_name . "</td>");
                                                             echo ("<td>" . $rows->sale_person . "</td>");
-                                                            echo ("<td>" . number_format($rows->cl_amount) . "</td>");
+                                                            echo ("<td class='text-right'>" . number_format($rows->cl_amount) . "</td>");
+                                                            echo ("<td class='text-right'>" . number_format($rows->cl_income_tax) . "</td>");
+                                                            echo ("<td class='text-right'>" . number_format($rows->cl_sales_tax) . "</td>");
+                                                            echo ("<td class='text-right'>" . number_format($rows->cl_sales_tax+$rows->cl_income_tax+$rows->cl_amount) . "</td>");
                                                             echo ("<td class='bg-primary text-white' style='box-shadow:5px 5px 10px #6d5eac;font-weight:600;font-size:13px;'><center>" . number_format($rows->cl_outstanding_amount) . "</center></td>");
+                                                            echo ("<td>" . $rows->cl_bank . "</td>");
+                                                            echo ("<td>" . $rows->cl_remarks . "</td>");
                                                             echo ("<td>" . $rows->ops_name . "</td>");
                                                             $date = date_create($rows->created_date);
-                                                            echo ("<td>" . date_format($date, 'M-d-Y') . "</td>");
+                                                            echo ("<td>" . date_format($date, 'M-d-Y H:i:s') . "</td>");
                                                             echo ("</tr>");
                                                         }
                                                     } ?>
@@ -241,92 +255,81 @@ $this->load->view('inc/header');
         })
 
         $(document).ready(function() {
-            var table = $('#myTable').DataTable({
-                "lengthMenu": [
-                    [10, 25, 50, 100, -1],
-                    [10, 25, 50, 100, "All"]
-                ],
-                "fixedHeader": true,
-                "searching": true,
-                "paging": true,
-                "ordering": true,
-                "bInfo": true,
-                dom: 'Blfrtip',
-                buttons: [
-                    'colvis',
-                    {
-                        extend: 'pdfHtml5',
-                        orientation: 'landscape',
-                        pageSize: 'A3',
-                        footer: 'true',
-                        title: "Invoices List",
-                        text: "<i class='fs-14 pg-download'></i> PDF",
-                        titleAttr: 'PDF',
-                        message: "T.M. Cargo\n  Powered By IT Department \n Date:<?php echo '' . date('Y-m-d'); ?> \n Invoices List \n "
-                    },
-                    {
-                        extend: 'excelHtml5',
-                        text: "<i class='fs-14 pg-form'></i> Excel",
-                        titleAttr: 'Excel',
-                        sheetName: 'Customer Ledger Report',
-                        exportOptions: {
-                            modifier: {
-                                page: 'current'
-                            }
-                        }
-                    },
-                    {
-                        extend: 'copyHtml5',
-                        footer: 'true',
-                        text: "<i class='fs-14 pg-note'></i> Copy",
-                        titleAttr: 'Copy'
-                    },
-                    {
-                        extend: 'print',
-                        text: "<i class='fs-14 pg-ui'></i> Print",
-                        titleAttr: 'Print',
-                        footer: 'true',
-                        title: "Customer Ledger Report",
-                        message: "T.M. Cargo<br>Date:<?php echo '' . date('Y-m-d'); ?> <br>  <br>Customer Ledger Report<br>"
-                    }
-                ],
-                order: [
-                    [4, 'asc']
-                ],
-                displayLength: 25,
-                "ordering": true,
-                "columnDefs": [{
-                    "visible": true,
-                    "targets": [4, 3]
-                }],
-                
-                "drawCallback": function(settings) {
-                    var api = this.api();
-                    var rows = api.rows({
-                        page: 'current'
-                    }).nodes();
-                    var last = null;
-                    var columns = [4, 3];
-                    for (c = 0; c < columns.length; c++) {
-                        var colNo = columns[c];
-                        api.column(colNo, {page: 'current'}).data().each(function(group, i) {
-                            if (last !== group) {
-                                if (colNo == 4) {
-                                    $(rows).eq(i).before(
-                                        '<tr class="sale_' + colNo + ' text-center group"><th colspan="9" style="font-weight: bold !important;">' + group + '</th></tr>'
-                                    );
-                                } else {
-                                    $(rows).eq(i).before(
-                                        '<tr class="cusotmer_' + colNo + '"><th colspan="9" style="font-weight: bold !important;">' + group + '</th></tr>'
-                                    );
-                                }
-
-                                last = group;
-                            }
-                        });
-                    }
-                },
-              
-            });
+            var groupColumn = 3;
+			var table = $('#myTable').DataTable({
+				"lengthMenu": [
+					[25, 50, 100, -1],
+					[25, 50, 100, "All"]
+				],
+				"fixedHeader": true,
+				"searching": true,
+				"paging": true,
+				"ordering": true,
+				"bInfo": true,
+				dom: 'Blfrtip',
+				buttons: [
+					'colvis',
+					{
+						extend: 'pdfHtml5',
+						orientation: 'landscape',
+						pageSize: 'A3',
+						footer: 'true',
+						title: "Invoices List",
+						text: "<i class='fs-14 pg-download'></i> PDF",
+						titleAttr: 'PDF'
+						// message: "T.M. Cargo\n  Powered By IT Department \n Date:<?php echo '' . date('Y-m-d'); ?> \n Invoices List \n "
+					},
+					{
+						extend: 'excelHtml5',
+						text: "<i class='fs-14 pg-form'></i> Excel",
+						titleAttr: 'Excel',
+						sheetName: 'Booking Reconcile List',
+						exportOptions: {
+							modifier: {
+								page: 'current'
+							}
+						}
+					},
+					{
+						extend: 'copyHtml5',
+						footer: 'true',
+						text: "<i class='fs-14 pg-note'></i> Copy",
+						titleAttr: 'Copy'
+					},
+					{
+						extend: 'print',
+						text: "<i class='fs-14 pg-ui'></i> Print",
+						titleAttr: 'Print',
+						footer: 'true',
+						title: "Booking Reconcile List",
+						// message: "T.M. Cargo<br>Date:<?php echo '' . date('Y-m-d'); ?> <br>  <br>Invoices List<br>"
+					}
+				],
+				columnDefs: [{
+					visible: false,
+					targets: groupColumn
+				}],
+				order: [
+					[13, 'desc']
+				],
+				displayLength: 25,
+				drawCallback: function(settings) {
+					var api = this.api();
+					var rows = api.rows({
+						page: 'current'
+					}).nodes();
+					var last = null;
+					api.column(groupColumn, {
+							page: 'current'
+						})
+						.data()
+						.each(function(group, i) {
+							if (last !== group) {
+								$(rows).eq(i).before('<tr class="group "><th colspan="19">' + group + '</th></tr>');
+								last = group;
+							}
+						});
+				},
+			});
         });
     </script>

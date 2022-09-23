@@ -1,15 +1,11 @@
 <?php
-
 class Rider extends CI_Controller
 {
-
 	function __construct()
 	{
 		parent::__construct();
 		$this->load->model('Commonmodel');
 	}
-
-
 	public function index()
 	{
 		$data['sub_nav_active'] = "Manage";
@@ -22,14 +18,13 @@ class Rider extends CI_Controller
 		}
 		$this->load->view('module_rider/riderView', $data);
 	}
-
 	public function add_rider()
 	{
 		$rider_name = $this->input->post('name');
 		$rider_cnic = $this->input->post('cnic');
 		$rider_empcode = $this->input->post('rider_empcode');
-		$citycode = $_SESSION['city_code'];
-		$message = 0;
+	$citycode = $_SESSION['city_code'];
+		$message = "";
 		if ($rider_name != "" && $rider_cnic != "") {
 			$check = $this->Commonmodel->Duplicate_check('cargo.saimtech_rider', 'rider_cnic', $rider_cnic);
 			if ($check == 0) {
@@ -50,6 +45,7 @@ class Rider extends CI_Controller
 				$data = array('rider_code' => $rider_code);
 				$this->Commonmodel->Update_record('cargo.saimtech_rider', 'rider_id', $rider_id, $data);
 				$this->send_mail($rider_id);
+				echo $message = 1;
 			} else {
 				echo $message = 2;
 			}
@@ -57,7 +53,6 @@ class Rider extends CI_Controller
 			echo $message = 1;
 		}
 	}
-
 	public function Rider_code($rider_id)
 	{
 		$code = $rider_id;
@@ -73,7 +68,6 @@ class Rider extends CI_Controller
 		}
 		return $precode;
 	}
-
 	public function update_status($status, $rider_id)
 	{
 		if ($status != "") {
@@ -82,7 +76,6 @@ class Rider extends CI_Controller
 		}
 		$this->redraw_table();
 	}
-
 	public function redraw_table()
 	{
 		$rider_data = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_rider', 'rider_origin_id', $_SESSION['origin_id']);
@@ -108,8 +101,6 @@ class Rider extends CI_Controller
 			}
 		}
 	}
-
-
 	public function send_mail($rider_id)
 	{
 		$data['rider_data'] = $this->Commonmodel->Get_record_by_condition('cargo.saimtech_rider', 'rider_id', $rider_id);

@@ -9,6 +9,31 @@ class Invoice extends CI_Controller
         $this->load->model('Invoicemodel');
         $this->load->model('Bookingmodel');
     }
+      public function client_activity_report()
+    {
+        $data['customer_data'] = $this->Commonmodel->Get_record_by_condition('acc_customers','is_enable', 1);
+        $data['cities_data'] = $this->Commonmodel->Get_record_by_condition('acc_city','is_enable', 1);
+        $this->load->view('module_invoice/clientactivityreport', $data);
+    }
+     public function activity_client_data_by_filter(){
+            $data = array(
+            'order_booking_date1'	=>	$this->input->post('booking_range_1'),			
+            'order_booking_date2'	=>	$this->input->post('booking_range_2'),
+            'customer_id'			=>	$this->input->post('customer'),
+            'origin_city'			=>	$this->input->post('origin'),	
+            );
+        if (strlen($data['order_booking_date1']) == 0) {
+            $ledger_date = $this->Invoicemodel->get_ledger_start_and_end_date();
+            $data['cusotmer_ledger'] = $this->Invoicemodel->get_clients_activity_record($ledger_date[0]->start_date, $ledger_date[0]->end_date, $data['customer_id'], $data['origin_city']);
+        } else {
+            $data['cusotmer_ledger'] = $this->Invoicemodel->get_clients_activity_record($data['order_booking_date1'], $data['order_booking_date2'], $data['customer_id'], $data['origin_city']);
+        }
+        
+        $data['customer_data'] = $this->Commonmodel->Get_record_by_condition('acc_customers','is_enable', 1);
+        $data['cities_data'] = $this->Commonmodel->Get_record_by_condition('acc_city','is_enable', 1);
+        
+        $this->load->view('module_invoice/clientactivityreport', $data);
+    }	
     public function index()
     {
         $startdate    = $this->input->post('start_date');
@@ -33,8 +58,8 @@ class Invoice extends CI_Controller
     public function create_debit_note($sheet_code)
     {
         $sheet_data  = $this->Invoicemodel->get_invoice_detail($sheet_code);
-        $first_day = date('Y-m-d', strtotime("first day of -1 month  $sheet_data->invoice_date"));
-        $last_day = date('Y-m-d', strtotime("last day of -1 month  $sheet_data->invoice_date"));
+        $first_day = date('Y-m-01', strtotime("-1 month",strtotime($sheet_data->invoice_date)));
+        $last_day = date('Y-m-t', strtotime("-1 month",strtotime($sheet_data->invoice_date)));
         $customer_id = $sheet_data->customer_id;
         $data['get_order_details']  = $this->Invoicemodel->get_order_details($first_day, $last_day, $customer_id);
         $data['invoce_data'] = array(
@@ -50,6 +75,8 @@ class Invoice extends CI_Controller
     {
         $orders_code = $_POST['order_code'];
         $invoce_no = $_POST['invoce_no'];
+        $f_date = $_POST['first_day'];
+        $l_date = $_POST['last_day'];
         $sheet_data = $this->Invoicemodel->get_order_code_details($orders_code);
         $invoice_id  = $this->Invoicemodel->get_id($invoce_no);
         $customer_id  = $this->Invoicemodel->get_customer_id($invoice_id);
@@ -85,7 +112,7 @@ class Invoice extends CI_Controller
             "debit_osa" => $debit_osa,
             "debit_fs" => $debit_fs,
             "debit_faf" => $debit_faf,
-            "crn_fod" => $cod_amount,
+            "debit_fod" => $cod_amount,
             "debit_others" => $debit_others,
             "debit_reason"  => $_POST['reason'],
             "created_by" => $_SESSION['user_id'],
@@ -108,19 +135,29 @@ class Invoice extends CI_Controller
             "cl_outstanding_amount" => $outstanding_amount,
             "cl_sale_person" => $reference_by,
             "cl_created_by" => $_SESSION['user_id'],
-            "cl_created_date" => date('Y-m-d H:i:s')
+            "cl_created_date" => date('Y-m-d H:i:s'),
+             "invoice_id" => $invoice_id
         );
         $id = $this->Commonmodel->Insert_record('customer_ledger', $customer_ledger);
-        $order_update = array(
+      	// $order_update = array(
+	// 	"is_invoice" => 1,
+	// 	"invoice_id" => $invoce_no,
+	// 	"modify_by" => $_SESSION['user_id'],
+	// 	"modify_date" => date('Y-m-d H:i:s')
+	// );
+	// $this->db->where("customer_id", $customer_id);
+	// $this->db->where("date(order_date) BETWEEN '" . $f_date . "'  AND '" . $l_date . "'");
+	// $this->db->where_in("order_code", implode(',', array($orders_code)));
+	// $this->db->update("acc_orders", $order_update);
+      foreach ($sheet_data as $key => $item) {
+              $order_update = array(
             "is_invoice" => 1,
             "invoice_id" => $invoce_no,
             "modify_by" => $_SESSION['user_id'],
             "modify_date" => date('Y-m-d H:i:s')
         );
-        $this->db->where("customer_id", $customer_id);
-        $this->db->where("date(order_date) BETWEEN '" . $_POST['first_day'] . "'  AND '" . $_POST['last_day'] . "'");
-        $this->db->where_in("order_code", implode(",", $orders_code));
-        $this->db->update("acc_orders", $order_update);
+            $this->Commonmodel->Update_Record('acc_orders', 'order_code', $item->order_code, $order_update);
+        }
         $this->db->trans_complete();
         if ($insert_detail) {
             echo "<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-success'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Successfully! Records has been saved.</div></div>";
@@ -149,10 +186,10 @@ class Invoice extends CI_Controller
             $this->load->view('module_invoice/customerledgerView', $data);
         } else {
             $o_city = "";
-            $data['startdate'] = date('Y-m-d');
+            $data['startdate'] = date('Y-m-d',strtotime('-10 days'));
             $data['enddate'] = date('Y-m-d');
             $data['o_customer'] =  $o_city;
-            $data['cusotmer_ledger'] = $this->Invoicemodel->fetch_record(date('Y-m-d'), date('Y-m-d'), $o_city);
+            $data['cusotmer_ledger'] = $this->Invoicemodel->fetch_record( date('Y-m-d',strtotime('-10 days')), date('Y-m-d'), $o_city);
             $data['customer_data'] = $this->Commonmodel->Get_record_by_condition("cargo.saimtech_customer", "is_enable", "1");
             $this->load->view('module_invoice/customerledgerView', $data);
         }
@@ -209,7 +246,7 @@ class Invoice extends CI_Controller
             $outstanding_amount = $crn_total;
         }
         $id = $this->Commonmodel->Insert_record('cr_note', $data);
-        $insert_detail = $this->Invoicemodel->insert_invoice_details($invoice_ids, $id);
+        $insert_detail = $this->Invoicemodel->insert_invoice_details($invoice_ids, $id,$_SESSION['user_id'],date('Y-m-d H:i:s'));
         $customer_ledger = array(
             "cl_instrument_type" => "Credit Note",
             "cl_instrument_no" => $id,
@@ -218,7 +255,8 @@ class Invoice extends CI_Controller
             "cl_outstanding_amount" => $outstanding_amount,
             "cl_sale_person" => $reference_by,
             "cl_created_by" => $_SESSION['user_id'],
-            "cl_created_date" => date('Y-m-d H:i:s')
+            "cl_created_date" => date('Y-m-d H:i:s'),
+              "invoice_id" => $invoice_id
         );
         $id = $this->Commonmodel->Insert_record('customer_ledger', $customer_ledger);
         foreach ($sheet_data as $key => $item) {
@@ -250,28 +288,85 @@ class Invoice extends CI_Controller
          $customer_id  = $this->Invoicemodel->get_customer_id($_POST['invoice_id']);
         $reference_by  = $this->Invoicemodel->get_referBY_id($customer_id);
         $outstanding_amount = 0;
-        $out_standing_amount  = $this->Invoicemodel->outstanding_amount($customer_id);
-        $outstanding_amount = 0;
-        if (!empty($out_standing_amount)) {
-            $outstanding_amount = $out_standing_amount->cl_outstanding_amount - $_POST['Amount'];
-        } else {
-            $outstanding_amount = $_POST['Amount'];
+        
+        $this->db->trans_start();
+        if ($_POST['income_tax']>0) {
+            $out_standing_amount  = $this->Invoicemodel->outstanding_amount($customer_id);
+            $outstanding_amount = 0;
+            if (!empty($out_standing_amount)) {
+                $outstanding_amount = $out_standing_amount->cl_outstanding_amount - $_POST['income_tax'];
+            } else {
+                $outstanding_amount = $_POST['income_tax'];
+            }
+            $customer_ledger = array(
+                "cl_instrument_type" => "Income Tax",
+                "cl_instrument_no" => "Income Tax Withhold",
+                "cl_customer_id" => $customer_id,
+                "cl_amount" => $_POST['income_tax'],
+                "cl_outstanding_amount" => $outstanding_amount,
+                "cl_sale_person" => $reference_by,
+                "cl_created_by" => $_SESSION['user_id'],
+                "cl_created_date" => date('Y-m-d H:i:s'),
+                "cl_bank" => $_POST['bank'],
+                "cl_remarks" => $_POST['remarks'],
+                "invoice_id" => $_POST['invoice_id']
+            );
+          
+            $id = $this->Commonmodel->Insert_record('customer_ledger', $customer_ledger);
         }
-        $customer_ledger = array(
-            "cl_instrument_type" => $_POST['insetrument_type'],
-            "cl_instrument_no" => $_POST['insetrument_no'],
-            "cl_customer_id" => $customer_id,
-            "cl_amount" => $_POST['Amount'],
-            "cl_outstanding_amount" => $outstanding_amount,
-            "cl_sale_person" => $reference_by,
-            "cl_created_by" => $_SESSION['user_id'],
-            "cl_created_date" => date('Y-m-d H:i:s'),
-            "cl_bank" => $_POST['bank'],
-            "cl_remarks" => $_POST['remarks'],
-            "cl_income_tax" => $_POST['income_tax'],
-            "cl_sales_tax" => $_POST['sales_tax'],
-        );
-        $id = $this->Commonmodel->Insert_record('customer_ledger', $customer_ledger);
+
+        if ($_POST['sales_tax']>0) {
+            $out_standing_amount  = $this->Invoicemodel->outstanding_amount($customer_id);
+            $outstanding_amount = 0;
+            if (!empty($out_standing_amount)) {
+                $outstanding_amount = $out_standing_amount->cl_outstanding_amount - $_POST['sales_tax'];
+            } else {
+                $outstanding_amount = $_POST['sales_tax'];
+            }
+            $customer_ledger = array(
+                "cl_instrument_type" => "GST Tax",
+                "cl_instrument_no" => "GST Withhold",
+                "cl_customer_id" => $customer_id,
+                "cl_amount" => $_POST['sales_tax'],
+                "cl_outstanding_amount" => $outstanding_amount,
+                "cl_sale_person" => $reference_by,
+                "cl_created_by" => $_SESSION['user_id'],
+                "cl_created_date" => date('Y-m-d H:i:s'),
+                "cl_bank" => $_POST['bank'],
+                "cl_remarks" => $_POST['remarks'],
+                "invoice_id" => $_POST['invoice_id']
+
+            );
+            $id = $this->Commonmodel->Insert_record('customer_ledger', $customer_ledger);
+        }
+
+        if ($_POST['insetrument_type'] !="Tax") {
+            $out_standing_amount  = $this->Invoicemodel->outstanding_amount($customer_id);
+            $outstanding_amount = 0;
+            if (!empty($out_standing_amount)) {
+                $outstanding_amount = $out_standing_amount->cl_outstanding_amount - $_POST['Amount'];
+            } else {
+                $outstanding_amount = $_POST['Amount'];
+            }
+            $customer_ledger = array(
+                "cl_instrument_type" => $_POST['insetrument_type'],
+                "cl_instrument_no" => $_POST['insetrument_no'],
+                "cl_customer_id" => $customer_id,
+                "cl_amount" => $_POST['Amount'],
+                "cl_outstanding_amount" => $outstanding_amount,
+                "cl_sale_person" => $reference_by,
+                "cl_created_by" => $_SESSION['user_id'],
+                "cl_created_date" => date('Y-m-d H:i:s'),
+                "cl_bank" => $_POST['bank'],
+                "cl_remarks" => $_POST['remarks'],
+                "invoice_id" => $_POST['invoice_id']
+            );
+            $id = $this->Commonmodel->Insert_record('customer_ledger', $customer_ledger);
+        }
+        $this->db->trans_complete();
+
+
+     
         if ($id) {
             echo "<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-success'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Successfully! Records has been saved.</div></div>";
         } else {
@@ -991,6 +1086,8 @@ class Invoice extends CI_Controller
         $sheet_data = $this->Invoicemodel->Get_Invoice_Print_Sheet_By_Code($sheet_code);
         $sheet_archive_data = $this->Invoicemodel->Get_Invoice_Print_Sheet_By_Code_Archive($sheet_code);
         $data['cr_data'] = $this->Invoicemodel->get_invoice_cr($sheet_code);
+        $data['deb_data'] = $this->Invoicemodel->get_invoice_deb($sheet_code);
+    
         if (!empty($sheet_archive_data)) {
             $data['sheet_data'] = array_merge($sheet_data, $sheet_archive_data);
         } else {

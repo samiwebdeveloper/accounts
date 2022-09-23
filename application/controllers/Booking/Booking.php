@@ -401,7 +401,48 @@
 			}
 	
 		echo json_encode($data);
-		
+		}
+
+		public function activity_client_data(){
+			$data['sub_nav_active']="Select";
+			$data['nav_active']="Booking";	
+			$data['event_name']="Select Booking";			
+			
+			if($_SERVER["REQUEST_METHOD"] == "POST"){
+				$data = array(
+				'order_booking_date1'	=>	$this->input->post('booking_range_1'),			
+				'order_booking_date2'	=>	$this->input->post('booking_range_2'),
+				'customer_id'			=>	$this->input->post('customer'),
+				'manual_cn'				=>	$this->input->post('mcn'),
+				'origin_city'			=>	$this->input->post('origin'),
+				'destination_city'		=>	$this->input->post('destination'),
+				'shipper_name'			=>	$this->input->post('shipper'),
+				'consignee_name'		=>	$this->input->post('consignee'),
+				'pieces'				=>	$this->input->post('pieces'),
+				'weight'				=>	$this->input->post('weight'),
+				'content'				=>	$this->input->post('content'),
+				'payment_mode'			=>	$this->input->post('paymode'),
+				'order_service_type'	=>	$this->input->post('services')			
+				);									
+				
+				$data['action'] = "POST";
+				$data['selected_cns'] = $this->Bookingmodel->Select_CNs_to_Hard_Check($data['order_booking_date1'],$data['order_booking_date2'],$data['customer_id'],
+				$data['manual_cn'],$data['origin_city'],$data['destination_city'],$data['shipper_name'],$data['consignee_name'],$data['pieces'],$data['weight'],$data['content'],
+				$data['payment_mode'],$data['order_service_type'],$_SESSION['user_mixture']);
+			}
+			isset($_SESSION['customer_id']) ? $cid=$_SESSION['customer_id'] : $cid = null;
+			$data['shipment_types'] = $this->Commonmodel->Get_record_by_condition('acc_services', 'is_enable', 1);
+			$data['customer_data'] = $this->Bookingmodel->Get_Customers_By_Mixture($_SESSION['user_mixture']);
+			$data['action'] = "GET";
+			
+			if((isset($_SESSION['is_tm']) ? $_SESSION['is_tm'] : 0)==0){
+				$data['cities_data']=$this->Bookingmodel->Get_Active_Cities_By_Mixture($_SESSION['user_mixture']);
+				
+				} else {
+				$data['cities_data']=$this->Bookingmodel->Get_All_Cities_By_Mixture($_SESSION['user_mixture']);
+			}
+	
+		echo json_encode($data);
 		}	
 
 		public function select(){

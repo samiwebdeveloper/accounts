@@ -4,66 +4,65 @@ $this->load->view('inc/header');
 ?>
 <script type="text/javascript">
   $(document).ready(function() {
-    
     // $("#myTable").saimtech();
     $("#rider_cnic").inputmask();
   });
 </script>
 <style>
-    tr.group,
-    tr.group:hover {
-        background-color: #ddd !important;
-        font-weight: 600;
-    }
+  tr.group,
+  tr.group:hover {
+    background-color: #ddd !important;
+    font-weight: 600;
+  }
 </style>
 <script>
-        $(document).ready(function() {
-            data_array()
-        })
+  $(document).ready(function() {
+    data_array()
+  })
 
-        function data_array() {
-            var groupColumn = 5;
-            var table = $('#myTable').DataTable({
-                "lengthMenu": [
-                    [10, 25, 50, 100, -1],
-                    [10, 25, 50, 100, "All"]
-                ],
-                columnDefs: [{
-                    visible: true,
-                    targets: groupColumn
-                }],
-                order: [
-                    [groupColumn, 'asc']
-                ],
-                displayLength: 10,
-                drawCallback: function(settings) {
-                    var api = this.api();
-                    var rows = api.rows({
-                        page: 'current'
-                    }).nodes();
-                    var last = null;
-                    api.column(groupColumn, {
-                            page: 'current'
-                        })
-                        .data()
-                        .each(function(group, i) {
-                            if (last !== group) {
-                                $(rows).eq(i).before('<tr class="group"><th colspan="7">' + group + '</th></tr>');
-                                last = group;
-                            }
-                        });
-                },
-            });
-            $('#myTable1').on('click', 'tr.group', function() {
-                var currentOrder = table.order()[0];
-                if (currentOrder[0] === groupColumn && currentOrder[1] === 'asc') {
-                    table.order([groupColumn, 'desc']).draw();
-                } else {
-                    table.order([groupColumn, 'asc']).draw();
-                }
-            });
-        }
-    </script>
+  function data_array() {
+    var groupColumn = 5;
+    var table = $('#myTable').DataTable({
+      "lengthMenu": [
+        [10, 25, 50, 100, -1],
+        [10, 25, 50, 100, "All"]
+      ],
+      columnDefs: [{
+        visible: true,
+        targets: groupColumn
+      }],
+      order: [
+        [groupColumn, 'asc']
+      ],
+      displayLength: 10,
+      drawCallback: function(settings) {
+        var api = this.api();
+        var rows = api.rows({
+          page: 'current'
+        }).nodes();
+        var last = null;
+        api.column(groupColumn, {
+            page: 'current'
+          })
+          .data()
+          .each(function(group, i) {
+            if (last !== group) {
+              $(rows).eq(i).before('<tr class="group"><th colspan="7">' + group + '</th></tr>');
+              last = group;
+            }
+          });
+      },
+    });
+    $('#myTable1').on('click', 'tr.group', function() {
+      var currentOrder = table.order()[0];
+      if (currentOrder[0] === groupColumn && currentOrder[1] === 'asc') {
+        table.order([groupColumn, 'desc']).draw();
+      } else {
+        table.order([groupColumn, 'asc']).draw();
+      }
+    });
+  }
+</script>
 <!-- START PAGE CONTENT WRAPPER -->
 <div class="page-content-wrapper">
   <!-- START PAGE CONTENT -->
@@ -146,12 +145,12 @@ $this->load->view('inc/header');
       </div>
       <!-- END PAGE CONTENT -->
       <!-- The Modal -->
-      <div class="modal" id="myModal">
+      <div class="modal fade stick-up" id="myModal">
         <div class="modal-dialog">
           <div class="modal-content">
             <!-- Modal Header -->
             <div class="modal-header">
-              <h4 class="modal-title">Add New Rider</h4>
+              <!-- <h4 class="modal-title">Add New Rider</h4> -->
               <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <!-- Modal body -->
@@ -220,19 +219,13 @@ $this->load->view('inc/header');
                 if (data == 1) {
                   $("#msg_show").html("<p class='alert alert-danger'>Something Went Wrong Please Try Again.</p>");
                 } else if (data == 0) {
-                  $("#msg_show").html("<p class='alert alert-success'>Rider successfully add in Data Base.</p>");
+                  $("#msg_show").html("<p class='alert alert-success'>Record has been saved</p>");
+                  setTimeout(() => {
+                    location.reload();
+                  }, 200);
                 } else if (data == 2) {
                   $("#msg_show").html("<p class='alert alert-danger'>Duplicate CNIC Try with Different CNIC.</p>");
                 }
-            location.reload();
-                $.ajax({
-                  url: "<?php echo base_url(); ?>Rider/redraw_table",
-                  type: "POST",
-                  data: mydata,
-                  success: function(data) {
-                    $("#autoload").html(data);
-                  }
-                });
               }
             });
             $("#rider_name").val("");

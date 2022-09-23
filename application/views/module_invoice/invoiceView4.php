@@ -15,6 +15,28 @@ $remark = "";
 $others = "";
 $fuel = "";
 $osa = "";
+$t_crn_pcs = 0;
+$t_crn_weight = 0;
+$t_crn_sc = 0;
+$t_crn_osa_sd = 0;
+$t_crn_osa = 0;
+$t_crn_fuel = 0;
+$t_crn_others = 0;
+$t_crn_gst = 0;
+$t_crn_faf = 0;
+$t_fod = 0;
+$crn_net = 0;
+$t_db_pcs = 0;
+$t_db_weight = 0;
+$t_db_sc = 0;
+$t_db_osa_sd = 0;
+$t_db_osa = 0;
+$t_db_fuel = 0;
+$t_db_others = 0;
+$t_db_gst = 0;
+$t_db_faf = 0;
+$tdb__fod = 0;
+$db_net = 0;
 if (!empty($sheet_data)) {
     foreach ($sheet_data as $rows) {
         $sheet_code             = $rows->invoice_code;
@@ -39,17 +61,67 @@ if (!empty($sheet_data)) {
         $total_fuel             = $rows->fuel_surcharge;
         $discounSSt_amount      = $rows->DC;
         $remark                 = $rows->invoice_remark;
-        $t_others                = $rows->invoice_others;
-        $t_fuel                    = $rows->invoice_fuel;
-        $t_faf                    = $rows->invoice_faf;
-        $total_osa                    = $rows->invoice_osa;
+        $t_others               = $rows->invoice_others;
+        $t_fuel                 = $rows->invoice_fuel;
+        $t_faf                  = $rows->invoice_faf;
+        $total_osa              = $rows->invoice_osa;
         $c_gst                  = ($rows->gsst * 100);
         $c_fuel                 = ($rows->fuel_surcharge * 100);
         $c_others               = ($rows->others_charges * 100);
-        $c_faf                   = ($rows->faf * 100);
+        $c_faf                  = ($rows->faf * 100);
+        $invoice_fod            = $rows->invoice_fod;
     }
 }
-
+/*if (!empty($cr_data)) {
+    foreach ($cr_data as $cr) {
+        $crn_cn = $cr->crn_cn;
+        $crn_manual_cn = $cr->crn_manual_cn;
+        $crn_origin = $cr->crn_origin;
+        $crn_destination = $cr->crn_destination;
+        $crn_consignee = $cr->crn_consignee;
+        $crn_pcs = $cr->crn_pcs;
+        $crn_weight = $cr->crn_weight;
+        $crn_sc = $cr->crn_sc;
+        $crn_osa_sd = $cr->crn_osa_sd;
+        $crn_osa = $cr->crn_osa;
+        $crn_fuel = $cr->crn_fuel;
+        $crn_others = $cr->crn_others;
+        $crn_gst = $cr->crn_gst;
+        $crn_faf = $cr->crn_faf;
+        $fod = $cr->fod;
+        $crn_serivce_name = $cr->crn_serivce_name;
+    }
+}*/
+if (!empty($cr_data)) {
+    foreach ($cr_data as $cr) {
+        $t_crn_pcs += $cr->crn_pcs;
+        $t_crn_weight += $cr->crn_weight;
+        $t_crn_sc += $cr->crn_sc;
+        $t_crn_osa_sd += $cr->crn_osa_sd;
+        $t_crn_osa += $cr->crn_osa;
+        $t_crn_fuel += $cr->crn_fuel;
+        $t_crn_others += $cr->crn_others;
+        $t_crn_gst += $cr->crn_gst;
+        $t_crn_faf += $cr->crn_faf;
+        $t_crn_fod += $cr->fod;
+    }
+    $crn_net = ($t_crn_sc + $t_crn_osa_sd + $t_crn_osa + $t_crn_fuel + $t_crn_others + $t_crn_gst + $t_crn_faf) - $t_crn_fod;
+}
+if (!empty($deb_data)) {
+    foreach ($deb_data as $db) {
+        $t_db_pcs += $db->debit_pcs;
+        $t_db_weight += $db->debit_weight;
+        $t_db_sc += $db->debit_sc;
+        $t_db_osa_sd += $db->debit_osa_sd;
+        $t_db_osa += $db->debit_osa;
+        $t_db_fuel += $db->debit_fuel;
+        $t_db_others += $db->debit_others;
+        $t_db_gst += $db->debit_gst;
+        $t_db_faf += $db->debit_faf;
+        $t_db_fod += $db->cod_amount;
+    }
+    $db_net = ($t_db_sc + $t_db_osa_sd + $t_db_osa + $t_db_fuel + $t_db_others + $t_db_gst + $t_db_faf) - $t_db_fod;
+}
 function AmountInWords(float $amount)
 {
     $amount_after_decimal = round($amount - ($num = floor($amount)), 2) * 100;
@@ -88,7 +160,6 @@ function AmountInWords(float $amount)
 												" . $change_words[$amount_after_decimal % 10]) . ' Paise' : '';
     return ($implode_to_Rupees ? $implode_to_Rupees . '' : '') . $get_paise;
 }
-
 ?>
 <html>
 
@@ -110,7 +181,6 @@ function AmountInWords(float $amount)
             margin-right: 0.5in;
             margin-top: 0.70in;
             margin-bottom: 0.5in;
-
             size: 8.3in 11in;
         }
 
@@ -153,7 +223,7 @@ function AmountInWords(float $amount)
 
 <body>
     <center>
-        <table class="report-container" width="100%">
+        <table class="report-container" width="99%">
             <thead class="report-header">
                 <tr>
                     <th class="report-header-cell">
@@ -281,78 +351,78 @@ function AmountInWords(float $amount)
                                         <tbody>
                                             <tr>
                                                 <td>Service Charges</td>
-                                                <td><?php echo number_format($total_sc,2); ?></td>
+                                                <td><?php echo number_format($total_sc - $t_crn_sc, 2); ?></td>
                                             </tr>
                                             <?php if ($total_osa > 0 || $total_osa_sd > 0) { ?>
                                                 <tr>
                                                     <td>OSA | SD Charges</td>
-                                                    <td><?php echo number_format(($total_osa + $total_osa_sd),2); ?></td>
+                                                    <td><?php echo number_format(($total_osa + $total_osa_sd) - ($t_crn_osa_sd + $t_crn_osa) + ($t_db_osa_sd + $t_db_osa), 2); ?></td>
                                                 </tr>
                                             <?php } ?>
-
                                             <?php if ($t_others > 0 || $other_amount > 0) { ?>
                                                 <tr>
                                                     <?php if ($other_name == "") { ?>
                                                         <td>Others</td>
-                                                        <td><?php echo number_format($t_others,2); ?></td>
+                                                        <td><?php echo number_format($other_amount - $t_crn_others + $t_db_others, 2); ?></td>
                                                     <?php } else { ?>
                                                         <td><?php echo $other_name; ?></td>
-                                                        <td><?php echo number_format(($t_others + $other_amount),2); ?></td>
+                                                        <td><?php echo number_format(($t_others + $other_amount) - $t_crn_others + $t_db_others, 2); ?></td>
                                                     <?php } ?>
                                                 </tr>
                                             <?php } ?>
-
                                             <?php if ($t_fuel > 0 || $total_fuel > 0) { ?>
                                                 <tr>
                                                     <td>Fuel Surcharge</td>
-                                                    <td><?php echo number_format(($t_fuel + $total_fuel),2); ?></td>
+                                                    <td><?php echo number_format(($t_fuel + $total_fuel) - $t_crn_fuel + $t_db_fuel, 2); ?></td>
                                                 </tr>
                                             <?php } ?>
-
                                             <?php if ($t_faf > 0) { ?>
                                                 <tr>
                                                     <td>F.A.F</td>
-                                                    <td><?php echo number_format($t_faf,2); ?></td>
+                                                    <td><?php echo number_format($t_faf - $t_crn_faf + $t_db_faf, 2); ?></td>
                                                 </tr>
                                             <?php } ?>
-
                                             <?php if ($discounSSt_amount != 0) { ?>
                                                 <tr>
                                                     <td>Discount Amount</td>
-                                                    <td><?php echo number_format($discounSSt_amount,2); ?></td>
+                                                    <td><?php echo number_format($discounSSt_amount, 2); ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                            <?php if ($invoice_fod != 0) { ?>
+                                                <tr>
+                                                    <td>FOD</td>
+                                                    <td><?php echo number_format($invoice_fod - $t_crn_fod + $t_db_fod, 2); ?></td>
                                                 </tr>
                                             <?php } ?>
                                             <?php if ($total_gst != 0) { ?>
                                                 <tr>
                                                     <td>G.S.T</td>
                                                     <?php if ($sheet_type == 1) { ?>
-                                                        <td><?php echo number_format($total_gst,2); ?></td>
+                                                        <td><?php echo number_format($total_gst - $t_crn_gst + $t_db_gst, 2); ?></td>
                                                     <?php } else { ?>
                                                         <td> <?php echo number_format(0); ?></td>
                                                     <?php } ?>
                                                 </tr>
                                             <?php } ?>
-
                                             <?php
-                                            $total_net = $sheet_type == 1 ? round(($total_sc + $total_osa_sd + $total_gst + $total_fuel + $other_amount + $t_fuel + $t_others + $total_osa + $t_faf) - $discounSSt_amount) : round(($total_sc + $total_osa_sd + $total_fuel + $other_amount + $t_fuel + $t_others + $total_osa + $t_faf) - $discounSSt_amount);
+                                            $total_net = $sheet_type == 1 ? round(($total_sc + $total_osa_sd + $total_gst + $total_fuel + $other_amount + $t_fuel + $t_others + $total_osa + $t_faf + $db_net) - ($discounSSt_amount + $invoice_fod + $crn_net)) : round(($total_sc + $total_osa_sd + $total_fuel + $other_amount + $t_fuel + $t_others + $total_osa + $t_faf + $db_net) - ($discounSSt_amount + $invoice_fod + $crn_net));
                                             ?>
-
                                             <tr>
                                                 <td>Net Amount</td>
                                                 <td><?php echo "PKR " . number_format($total_net); ?></td>
                                             </tr>
                                             <tr>
-                                                <td>Amount in Words (PKR)</td>
+                                                <td>Amount in Pak Rupees</td>
                                                 <td>
                                                     <?php
-                                                    $get_amount = AmountInWords($total_net);
+                                                    $get_amount = AmountInWords(abs($total_net));
                                                     echo $get_amount . "Rupees only.";
                                                     ?>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>Total Consignments</td>
-                                                <td><?php echo number_format(count($sheet_data)); ?></td>
+                                                <td><?php echo number_format(count($sheet_data) - count($cr_data) + count($deb_data)); ?></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -366,6 +436,15 @@ function AmountInWords(float $amount)
                                 <!--<center><img src="<?php echo base_url(); ?>assets/may22.jpg" width="60%"></center>-->
                                 <?php if (strlen($remark) > 0) { ?><div><b>Note:</b> <?php echo $remark; ?></div><?php } ?>
                                 <div class="pagebrake">&nbsp;</div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="row">
+                            <div class="col-12">
+                                <h4 class="m-10">Consignment Details:</h4>
                             </div>
                         </div>
                     </td>
@@ -388,6 +467,7 @@ function AmountInWords(float $amount)
                                             <th>Service</th>
                                             <?php if ($total_osa + $total_osa_sd > 0) { ?> <th>OSA|SD</th> <?php } ?>
                                             <?php if ($t_others > 0) { ?> <th>Others</th> <?php } ?>
+                                            <?php if ($invoice_fod != 0) { ?> <th>FOD</th> <?php } ?>
                                             <?php if ($total_gst != 0) { ?> <th>GST</th> <?php } ?>
                                             <th>Amount</th>
                                         </tr>
@@ -401,6 +481,7 @@ function AmountInWords(float $amount)
                                             $t_oth = 0;
                                             $t_fuel = 0;
                                             $t_amt = 0;
+                                            $t_fod = 0;
                                             $i = 0;
                                             $j = 0;
                                             $page = 0;
@@ -415,6 +496,8 @@ function AmountInWords(float $amount)
                                                 $t_fuel = $t_fuel + $rows->fuel;
                                                 $t_amt = $t_amt + $rows->sc;
                                                 $t_gst = $t_gst + $rows->gst;
+                                                $t_fod = $t_fod + $rows->fod;
+                                                $t_faf = $t_faf + $rows->faf;
                                         ?>
                                                 <tr>
                                                     <td><?php echo $i; ?></td>
@@ -437,27 +520,29 @@ function AmountInWords(float $amount)
                                                         <td>DET</td>
                                                     <?php } else if ($rows->serivce_name == "Air Frieght") { ?>
                                                         <td>AF</td>
-                                                    <?php } else if ($rows->serivce_name == "Full Truck Load") { ?>
-                                                        <td>FTL</td>
+                                                    <?php } else if ($rows->serivce_name == "Per Piece Movement") { ?>
+                                                        <td>PPM</td>
                                                     <?php } else { ?>
                                                         <td>WH</td>
                                                     <?php }  ?>
-                                                    <?php if (($total_osa + $total_osa_sd) != 0) { ?><td><?php echo number_format(($rows->osa + $rows->osa_sd),2); ?></td><?php } ?>
-                                                    <?php if ($t_others != 0) { ?><td><?php echo number_format($rows->others,2); ?></td><?php } ?>
-                                                    <?php if ($total_gst != 0) { ?> <td><?php echo number_format($rows->gst,2); ?></td><?php } ?>
-                                                        <td><?php echo number_format($rows->sc,2); ?></td>
+                                                    <?php if (($total_osa + $total_osa_sd) != 0) { ?><td><?php echo number_format(($rows->osa + $rows->osa_sd), 2); ?></td><?php } ?>
+                                                    <?php if ($t_others != 0) { ?><td><?php echo number_format($rows->others, 2); ?></td><?php } ?>
+                                                    <?php if ($invoice_fod != 0) { ?> <td><?php echo number_format($rows->fod, 2); ?></td><?php } ?>
+                                                    <?php if ($total_gst != 0) { ?> <td><?php echo number_format($rows->gst, 2); ?></td><?php } ?>
+                                                    <td><?php echo number_format($rows->sc, 2); ?></td>
                                                 </tr>
                                             <?php } ?>
                                             <tr>
                                                 <th></th>
-                                                <th colspan="5" class="text-right">Total</th>
+                                                <th colspan="5" class="text-right">Sub Total</th>
                                                 <th><?php echo number_format($total_pcs); ?></th>
-                                                <th><?php echo number_format($total_wgt,2); ?></th>
+                                                <th><?php echo number_format($total_wgt, 2); ?></th>
                                                 <th></th>
-                                                <?php if (($total_osa + $total_osa_sd) != 0) { ?><th><?php echo number_format(($total_osa + $total_osa_sd),2); ?></th><?php } ?>
-                                                <?php if ($t_others != 0) { ?><th><?php echo number_format($t_oth,2); ?></th><?php } ?>
-                                                <?php if ($total_gst != 0) { ?> <th><?php echo number_format($t_gst,2); ?></th> <?php } ?>
-                                                <th><?php echo number_format($t_amt,2); ?></th>
+                                                <?php if (($total_osa + $total_osa_sd) != 0) { ?><th><?php echo number_format(($total_osa + $total_osa_sd), 2); ?></th><?php } ?>
+                                                <?php if ($t_others != 0) { ?><th><?php echo number_format($t_oth, 2); ?></th><?php } ?>
+                                                <?php if ($invoice_fod != 0) { ?> <th><?php echo number_format($t_fod, 2); ?></th> <?php } ?>
+                                                <?php if ($total_gst != 0) { ?> <th><?php echo number_format($t_gst, 2); ?></th> <?php } ?>
+                                                <th><?php echo number_format($t_amt, 2); ?></th>
                                             </tr>
                                         <?php } ?>
                                     </tbody>
@@ -466,71 +551,257 @@ function AmountInWords(float $amount)
                         </div>
                     </td>
                 </tr>
+                <?php if (!empty($cr_data)) { ?>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-12">
+                                    <h4 class="m-10">Credit Note:</h4>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-12">
+                                    <table class="table table-striped text-center pagebrake" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr</th>
+                                                <th>Date</th>
+                                                <th>CN No</th>
+                                                <th>Origin</th>
+                                                <th>Destination</th>
+                                                <th>Consignee</th>
+                                                <th>Pieces</th>
+                                                <th>Weight</th>
+                                                <th>Service</th>
+                                                <?php if ($t_crn_osa  + $t_crn_osa_sd  > 0) { ?> <th>OSA|SD</th> <?php } ?>
+                                                <?php if ($t_others > 0) { ?> <th>Others</th> <?php } ?>
+                                                <?php if ($t_crn_fod != 0) { ?> <th>FOD</th> <?php } ?>
+                                                <?php if ($total_gst != 0) { ?> <th>GST</th> <?php } ?>
+                                                <th>Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (!empty($cr_data)) {
+                                                $i = 0;
+                                                $j = 0;
+                                                $page = 0;
+                                                foreach ($cr_data as $rows) {
+                                                    $i = $i + 1;
+                                                    $j = $j + 1;
+                                            ?>
+                                                    <tr>
+                                                        <td><?php echo $i; ?></td>
+                                                        <td><?php echo $rows->cn_date; ?></td>
+                                                        <td><?php if ($rows->crn_manual_cn != "") {
+                                                                echo $rows->crn_manual_cn;
+                                                            } else {
+                                                                echo $rows->crn_cn;
+                                                            }; ?></td>
+                                                        <td class="text-left"><?php echo $rows->crn_origin; ?></td>
+                                                        <td class="text-left"><?php echo $rows->crn_destination; ?></td>
+                                                        <td class="text-left"><?php echo ucwords(strtolower($rows->crn_consignee)); ?></td>
+                                                        <td><?php echo $rows->crn_pcs; ?></td>
+                                                        <td><?php echo ceil($rows->crn_weight); ?></td>
+                                                        <?php if ($rows->crn_serivce_name == "Over Night") { ?>
+                                                            <td>ONT</td>
+                                                        <?php } else if ($rows->crn_serivce_name == "Over Land") { ?>
+                                                            <td>OVL</td>
+                                                        <?php } else if ($rows->crn_serivce_name == "Detain") { ?>
+                                                            <td>DET</td>
+                                                        <?php } else if ($rows->crn_serivce_name == "Air Frieght") { ?>
+                                                            <td>AF</td>
+                                                        <?php } else if ($rows->crn_serivce_name == "Per Piece Movement") { ?>
+                                                            <td>PPM</td>
+                                                        <?php } else { ?>
+                                                            <td>WH</td>
+                                                        <?php }  ?>
+                                                        <?php if (($t_crn_osa  + $t_crn_osa_sd) != 0) { ?><td><?php echo number_format(($rows->crn_osa + $rows->crn_osa_sd), 2); ?></td><?php } ?>
+                                                        <?php if ($t_crn_others != 0) { ?><td><?php echo number_format($rows->crn_others, 2); ?></td><?php } ?>
+                                                        <?php if ($t_crn_fod != 0) { ?> <td><?php echo number_format($rows->fod, 2); ?></td><?php } ?>
+                                                        <?php if ($t_crn_gst != 0) { ?> <td><?php echo number_format($rows->crn_gst, 2); ?></td><?php } ?>
+                                                        <td><?php echo number_format($rows->crn_sc, 2); ?></td>
+                                                    </tr>
+                                                <?php } ?>
+                                                <tr>
+                                                    <th colspan="6" class="text-right">Sub Total</th>
+                                                    <th><?php echo "(" . number_format($t_crn_pcs) . ")"; ?></th>
+                                                    <th><?php echo "(" . number_format($t_crn_weight, 2) . ")"; ?></th>
+                                                    <th></th>
+                                                    <?php if (($t_crn_osa_sd + $t_crn_osa) != 0) { ?><th><?php echo "(" . number_format(($t_crn_osa + $t_crn_osa), 2) . ")"; ?></th><?php } ?>
+                                                    <?php if ($t_crn_others  != 0) { ?><th><?php echo "(" . number_format($t_crn_others, 2) . ")"; ?></th><?php } ?>
+                                                    <?php if ($t_crn_fod  != 0) { ?> <th><?php echo "(" . number_format($t_crn_fod, 2) . ")"; ?></th> <?php } ?>
+                                                    <?php if ($t_crn_gst  != 0) { ?> <th><?php echo "(" . number_format($t_crn_gst, 2) . ")"; ?></th> <?php } ?>
+                                                    <th><?php echo "(" . number_format($t_crn_sc, 2) . ")"; ?></th>
+                                                </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                <?php } ?>
+                <?php if (!empty($deb_data)) { ?>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-12">
+                                    <h4 class="m-10">Debit Note:</h4>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col-12">
+                                    <table class="table table-striped text-center pagebrake" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr</th>
+                                                <th>Date</th>
+                                                <th>CN No</th>
+                                                <th>Origin</th>
+                                                <th>Destination</th>
+                                                <th>Consignee</th>
+                                                <th>Pieces</th>
+                                                <th>Weight</th>
+                                                <th>Service</th>
+                                                <?php if ($t_db_osa  + $t_db_osa_sd  > 0) { ?> <th>OSA|SD</th> <?php } ?>
+                                                <?php if ($t_others > 0) { ?> <th>Others</th> <?php } ?>
+                                                <?php if ($t_db_fod != 0) { ?> <th>FOD</th> <?php } ?>
+                                                <?php if ($total_gst != 0) { ?> <th>GST</th> <?php } ?>
+                                                <th>Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (!empty($deb_data)) {
+                                                $i = 0;
+                                                $j = 0;
+                                                $page = 0;
+                                                foreach ($deb_data as $rows) {
+                                                    $i = $i + 1;
+                                                    $j = $j + 1;
+                                            ?>
+                                                    <tr>
+                                                        <td><?php echo $i; ?></td>
+                                                        <td><?php echo $rows->cn_date; ?></td>
+                                                        <td><?php if ($rows->debit_manual_cn != "") {
+                                                                echo $rows->debit_manual_cn;
+                                                            } else {
+                                                                echo $rows->debit_cn;
+                                                            }; ?></td>
+                                                        <td class="text-left"><?php echo $rows->debit_origin; ?></td>
+                                                        <td class="text-left"><?php echo $rows->debit_destination; ?></td>
+                                                        <td class="text-left"><?php echo ucwords(strtolower($rows->debit_consignee)); ?></td>
+                                                        <td><?php echo $rows->debit_pcs; ?></td>
+                                                        <td><?php echo ceil($rows->debit_weight); ?></td>
+                                                        <?php if ($rows->debit_serivce_name == "Over Night") { ?>
+                                                            <td>ONT</td>
+                                                        <?php } else if ($rows->debit_serivce_name == "Over Land") { ?>
+                                                            <td>OVL</td>
+                                                        <?php } else if ($rows->debit_serivce_name == "Detain") { ?>
+                                                            <td>DET</td>
+                                                        <?php } else if ($rows->debit_serivce_name == "Air Frieght") { ?>
+                                                            <td>AF</td>
+                                                        <?php } else if ($rows->debit_serivce_name == "Per Piece Movement") { ?>
+                                                            <td>PPM</td>
+                                                        <?php } else { ?>
+                                                            <td>WH</td>
+                                                        <?php }  ?>
+                                                        <?php if (($t_db_osa  + $t_db_osa_sd) != 0) { ?><td><?php echo number_format(($rows->debit_osa + $rows->debit_osa_sd), 2); ?></td><?php } ?>
+                                                        <?php if ($t_db_others != 0) { ?><td><?php echo number_format($rows->debit_others, 2); ?></td><?php } ?>
+                                                        <?php if ($t_db_fod != 0) { ?> <td><?php echo number_format($rows->cod_amount, 2); ?></td><?php } ?>
+                                                        <?php if ($t_db_gst != 0) { ?> <td><?php echo number_format($rows->debit_gst, 2); ?></td><?php } ?>
+                                                        <td><?php echo number_format($rows->debit_sc, 2); ?></td>
+                                                    </tr>
+                                                <?php } ?>
+                                                <tr>
+                                                    <th colspan="6" class="text-right">Sub Total</th>
+                                                    <th><?php echo number_format($t_db_pcs); ?></th>
+                                                    <th><?php echo number_format($t_db_weight, 2); ?></th>
+                                                    <th></th>
+                                                    <?php if (($t_db_osa_sd + $t_db_osa) != 0) { ?><th><?php echo number_format(($t_db_osa + $t_db_osa), 2); ?></th><?php } ?>
+                                                    <?php if ($t_db_others  != 0) { ?><th><?php echo number_format($t_db_others, 2); ?></th><?php } ?>
+                                                    <?php if ($t_db_fod  != 0) { ?> <th><?php echo number_format($t_db_fod, 2); ?></th> <?php } ?>
+                                                    <?php if ($t_db_gst  != 0) { ?> <th><?php echo number_format($t_db_gst, 2); ?></th> <?php } ?>
+                                                    <th><?php echo number_format($t_db_sc, 2); ?></th>
+                                                </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                <?php } ?>
                 <tr>
                     <td>
                         <div class="row">
                             <div class="col-6"></div>
                             <div class="col-6">
-                                <table class="table table-striped" width="100%">
+                                <h4>Grand Totals:</h4>
+                                <table class="table table-striped" width="98%">
                                     <tbody>
                                         <tr>
                                             <td>Service Charges</td>
-                                            <th class="text-right"><?php echo number_format($total_sc,2); ?></th>
+                                            <th class="text-right"><?php echo number_format($total_sc - $t_crn_sc + $t_db_sc, 2); ?></th>
                                         </tr>
-                                        <?php if ($t_osa > 0 || $total_osa_sd > 0) { ?>
+                                        <?php if ($total_osa > 0 || $total_osa_sd > 0) { ?>
                                             <tr>
                                                 <td>OSA | SD Charges</td>
-                                                <th class="text-right"><?php echo number_format(($t_osa + $total_osa_sd),2); ?></th>
+                                                <td class="text-right"><?php echo number_format(($total_osa + $total_osa_sd) - ($t_crn_osa_sd + $t_crn_osa) + ($t_db_osa_sd + $t_db_osa), 2); ?></td>
                                             </tr>
                                         <?php } ?>
-
                                         <?php if ($t_others > 0 || $other_amount > 0) { ?>
                                             <tr>
                                                 <?php if ($other_name == "") { ?>
                                                     <td>Others</td>
-                                                    <th class="text-right"><?php echo number_format($t_others,2); ?></th>
+                                                    <td class="text-right"><?php echo number_format($other_amount - $t_crn_others + $t_db_others, 2); ?></td>
                                                 <?php } else { ?>
                                                     <td><?php echo $other_name; ?></td>
-                                                    <th class="text-right"><?php echo number_format(($t_others + $other_amount),2); ?></th>
+                                                    <td class="text-right"><?php echo number_format(($t_others + $other_amount) - $t_crn_others + $t_db_others, 2); ?></td>
                                                 <?php } ?>
                                             </tr>
                                         <?php } ?>
-
                                         <?php if ($t_fuel > 0 || $total_fuel > 0) { ?>
                                             <tr>
                                                 <td>Fuel Surcharge</td>
-                                                <th class="text-right"><?php echo number_format(($t_fuel + $total_fuel),2); ?></th>
+                                                <td class="text-right"><?php echo number_format(($t_fuel + $total_fuel) - $t_crn_fuel + $t_db_fuel, 2); ?></td>
                                             </tr>
                                         <?php } ?>
-
                                         <?php if ($t_faf > 0) { ?>
                                             <tr>
                                                 <td>F.A.F</td>
-                                                <th class="text-right"><?php echo number_format($t_faf,2); ?></th>
+                                                <td class="text-right"><?php echo number_format($t_faf - $t_crn_faf + $t_db_faf, 2); ?></td>
                                             </tr>
                                         <?php } ?>
-
                                         <?php if ($discounSSt_amount != 0) { ?>
                                             <tr>
                                                 <td>Discount Amount</td>
-                                                <th class="text-right"><?php echo number_format($discounSSt_amount,2); ?></th>
+                                                <td class="text-right"><?php echo number_format($discounSSt_amount, 2); ?></td>
+                                            </tr>
+                                        <?php } ?>
+                                        <?php if ($invoice_fod != 0) { ?>
+                                            <tr>
+                                                <td>FOD</td>
+                                                <td class="text-right"><?php echo number_format($invoice_fod - $t_crn_fod + $t_db_fod, 2); ?></td>
                                             </tr>
                                         <?php } ?>
                                         <?php if ($total_gst != 0) { ?>
                                             <tr>
                                                 <td>G.S.T</td>
                                                 <?php if ($sheet_type == 1) { ?>
-                                                    <th class="text-right"><?php echo number_format($total_gst,2); ?></th>
+                                                    <td class="text-right"><?php echo number_format($total_gst - $t_crn_gst + $t_db_gst, 2); ?></td>
                                                 <?php } else { ?>
-                                                    <th class="text-right"> <?php echo number_format(0); ?></th>
+                                                    <td class="text-right"> <?php echo number_format(0); ?></td>
                                                 <?php } ?>
                                             </tr>
                                         <?php } ?>
-
-                                        <?php
-                                        $total_net = $sheet_type == 1 ? round(($total_sc + $total_osa_sd + $total_gst + $total_fuel + $other_amount + $t_fuel + $t_others + $t_osa + $t_faf) - $discounSSt_amount) : round(($total_sc + $total_osa_sd + $total_fuel + $other_amount + $t_fuel + $t_others + $t_osa + $t_faf) - $discounSSt_amount);
-                                        ?>
-
                                         <tr>
                                             <td>Net Amount</td>
                                             <th class="text-right"><?php echo "PKR " . number_format($total_net); ?></th>

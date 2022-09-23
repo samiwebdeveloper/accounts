@@ -46,7 +46,7 @@ $this->load->view('inc/header');
 											<div class="row clearfix">
 												<div class="col-sm-3">
 													<div class="form-group form-group-default required" id="user_name_div">
-														<form action="<?php echo base_url(); ?>Invoice/date_range" method="post">
+														<form action="<?php echo base_url(); ?>Invoice" method="post">
 															<label>Start Date</label>
 															<input type="date" class="form-control" id="start_date" name="start_date" required="" value="<?php echo $startdate; ?>">
 													</div>
@@ -68,25 +68,25 @@ $this->load->view('inc/header');
 										<div class="table-responsive m-t-10">
 											<table class="table table-bordered nowrap" id="myTable" style="border-top:1px solid black ;">
 												<thead>
-													<th class="text-center">Action</th>
+													<th>Action</th>
 													<!-- <th>Deposit</th> -->
-													<th>Origin</th>
-													<th>Invoice Number</th>
-													<th>CNs</th>
+													<th class="text-center">Account #</th>
 													<th>Customer Name</th>
-													<th>Account #</th>
-													<th class='bg-primary text-white text-center' style="box-shadow: 5px 10px #6d5eac;">Net Total</th>
-													<th>Invoice Date</th>
-													<th>SC</th>
-													<th>OSA | SD</th>
-													<th>GST</th>
-													<th>Fuel</th>
-													<th>FAF</th>
-													<th>Others</th>
-													<th>Discount</th>
 													<th>Pieces</th>
 													<th>Weight</th>
+													<th>Origin</th>
+													<th>Invoice Number</th>
+													<th>SC</th>
+													<th>FS</th>
+													<th>FAF</th>
+													<th>GST</th>
+													<th class='bg-primary text-white text-center' style="box-shadow: 5px 10px #6d5eac;">Net Total</th>
 													<th>Sales Person</th>
+													<th>CNs</th>
+													<th>OSA | SD</th>
+													<th>Others</th>
+													<th>Discount</th>
+													<th>Invoice Date</th>
 													<th>Username</th>
 													<?php if ($_SESSION['user_id'] == "74" or $_SESSION['user_id'] == "90") { ?>
 														<th>Revert</th>
@@ -99,12 +99,12 @@ $this->load->view('inc/header');
 														foreach ($invoice_data as $rows) {
 															$i = $i + 1;
 															echo ("<tr>");
-															echo ("<td><a href='" . base_url() . "Invoice/view_invoice_sheet_v3/" . $rows->invoice_code . "' target='_blank' class='btn btn-primary btn-xs'>View V3</a>");
-															echo "&nbsp; <a  href='" . base_url() . "Invoice/create_credit_note/" . $rows->invoice_code . "' class='btn btn-xs btn-primary'>Credit Note</a>";
-															echo "&nbsp; <a  href='" . base_url() . "Invoice/create_debit_note/" . $rows->invoice_code . "' class='btn btn-xs btn-primary'>Debit Note</a>";
+															echo ("<td><a href='" . base_url() . "Invoice/view_invoice_sheet_v3/" . $rows->invoice_code . "' target='_blank' class='btn btn-primary btn-xs'>Print</a>&nbsp;");
+															echo "<a href='" . base_url() . "Invoice/create_credit_note/" . $rows->invoice_code . "' target='_blank' class='btn btn-xs btn-primary'>Credit Note</a>";
+															echo " <a  href='" . base_url() . "Invoice/create_debit_note/" . $rows->invoice_code . "' target='_blank' class='btn btn-xs btn-primary'>Debit Note</a>&nbsp;";
 															//--------------------------
 															if ($rows->is_payment == 0) {
-																echo (" &nbsp;<a class=' btn btn-xs btn-primary edit_btn_" . $rows->invoice_code . "' data-toggle='modal' data-target='#edit_" . $rows->acc_invoice_id . "' href='javascript:void(0)'>Deposit</a></td>");
+																echo ("<a class=' btn btn-xs btn-primary edit_btn_" . $rows->invoice_code . "' data-toggle='modal' data-target='#edit_" . $rows->acc_invoice_id . "' href='javascript:void(0)'>Deposit</a></td>");
 															} else {
 																echo ($rows->payment_tid . "</td>");
 															}
@@ -143,6 +143,7 @@ $this->load->view('inc/header');
 																											<option value="">Select Mode</option>
 																											<option value='Cash'>Cash</option>
 																											<option value='Cheque'>Cheque</option>
+																											<option value='Tax'>Tax</option>
 																										</select>
 																									</div>
 																								</div>
@@ -159,13 +160,13 @@ $this->load->view('inc/header');
 																							</div>
 																							<div class="row">
 																								<div class="col-md-7">
-																									<div class="form-group form-group-default ">
+																									<div class="form-group form-group-default  ">
 																										<label>Instrument No</label>
 																										<input type="text" class="form-control" name="insetrument_no" id="insetrument_no_<?php echo $rows->invoice_code ?>">
 																									</div>
 																								</div>
 																								<div class="col-md-5">
-																									<div class="form-group form-group-default required">
+																									<div class="form-group form-group-default ">
 																										<label>Amount</label>
 																										<input type="number" class="form-control" name="Amount" id="Amount_<?php echo $rows->invoice_code ?>">
 																									</div>
@@ -175,13 +176,13 @@ $this->load->view('inc/header');
 																								<div class="col-md-7">
 																									<div class="form-group form-group-default ">
 																										<label>Sales Tax</label>
-																										<input type="number" class="form-control" name="insetrument_no" id="sales_tax_<?php echo $rows->invoice_code ?>">
+																										<input type="number" value="0.00" class="form-control" name="sales_tax" id="sales_tax_<?php echo $rows->invoice_code ?>">
 																									</div>
 																								</div>
 																								<div class="col-md-5">
 																									<div class="form-group form-group-default ">
-																										<label>Income  Tax</label>
-																										<input type="number" class="form-control" name="Amount" id="income_tax_<?php echo $rows->invoice_code ?>">
+																										<label>Income Tax</label>
+																										<input type="number" value="0.00" class="form-control" name="income_tax" id="income_tax_<?php echo $rows->invoice_code ?>">
 																									</div>
 																								</div>
 																							</div>
@@ -212,52 +213,84 @@ $this->load->view('inc/header');
 																								var bank = $("#bank_type_<?php echo $rows->invoice_code ?>").val();
 																								var income_tax = $("#income_tax_<?php echo $rows->invoice_code ?>").val();
 																								var sales_tax = $("#sales_tax_<?php echo $rows->invoice_code ?>").val();
-																								if (insetrument_type != "" && Amount != "" && datetime != "") {
-																									var mydata = {
-																										insetrument_type: insetrument_type,
-																										insetrument_no: insetrument_no,
-																										bank: bank,
-																										date: datetime,
-																										Amount: Amount,
-																										remarks: mang_des,
-																										income_tax: income_tax,
-																										sales_tax: sales_tax,
-																										invoice_id: "<?php echo $rows->acc_invoice_id ?>",
-																										invoice_code: "<?php echo $rows->invoice_code ?>",
-																										created_by: "<?php echo $_SESSION['user_id'] ?>"
-																									};
-																									console.log(mydata);
-
-																									$.ajax({
-																										url: "receive_cash",
-																										type: "POST",
-																										data: mydata,
-																										beforeSend: function() {
-																											$(".msg_div2").html('<div class="  col-lg-12 alert alert-warnning" role="alert"> <button class="close "  data-dismiss="alert"></button><strong>Successfully!: </strong>please wait...</div>')
-																											$("#save_<?php echo $rows->invoice_code ?>").html('please wait...')
-																										},
-																										success: function(data) {
-																											$('#edit_<?php echo $rows->acc_invoice_id ?>').modal('hide');
-																											$(".msg_div2").html(data);
-																											$('.edit_btn_<?php echo $rows->invoice_code ?>').attr("disabled", true).css("cursor", "not-allowed").addClass('btn-success').removeClass('btn-primary');
-																											$("#save_<?php echo $rows->invoice_code ?>").html('Save')
-																											$("#insetrument_type_<?php echo $rows->invoice_code ?>").change("")
-																											$("#insetrument_no_<?php echo $rows->invoice_code ?>").val("")
-																											$("#datetime_<?php echo $rows->invoice_code ?>").val("<?php echo date('Y-m-d\TH:i') ?>")
-																											$("#mang_des_<?php echo $rows->invoice_code ?>").val("")
-																											$("#Amount_<?php echo $rows->invoice_code ?>").val("")
-																										},
-																										error: function(data, sts, errmsg) {
-																											$(".msg_div2").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>" + errmsg + "</div></div>");
+																								var check="";
+																								var mydata = {
+																									insetrument_type: insetrument_type,
+																									insetrument_no: insetrument_no,
+																									bank: bank,
+																									date: datetime,
+																									Amount: Amount,
+																									remarks: mang_des,
+																									income_tax: income_tax,
+																									sales_tax: sales_tax,
+																									invoice_id: "<?php echo $rows->acc_invoice_id ?>",
+																									invoice_code: "<?php echo $rows->invoice_code ?>",
+																									created_by: "<?php echo $_SESSION['user_id'] ?>",
+																									invoice_balance: "<?php echo ($rows->invoice_osa + $rows->other_amount + $rows->invoice_gst + $rows->invoice_sc + $rows->invoice_osa_sd_total + $rows->fuel_surcharge + $rows->invoice_fuel + $row->others + $rows->invoice_faf - ($rows->discount_amount)) ?>",
+																								};
+																								if (insetrument_type != "") {
+																									if (insetrument_type != "Tax") {
+																										
+																										if (insetrument_type != "" && Amount != "" && bank != "" && insetrument_no != "") {
+																											$.ajax({
+																												url: "<?php echo base_url(); ?>/invoice/receive_cash",
+																												type: "POST",
+																												data: mydata,
+																												beforeSend: function() {
+																													$(".msg_div2").html('<div class="  col-lg-12 alert alert-warnning" role="alert"> <button class="close "  data-dismiss="alert"></button><strong>Successfully!: </strong>please wait...</div>')
+																													$("#save_<?php echo $rows->invoice_code ?>").html('please wait...')
+																												},
+																												success: function(data) {
+																													// $('#edit_<?php echo $rows->acc_invoice_id ?>').modal('hide');
+																													$(".msg_div2").html(data);
+																													$('.edit_btn_<?php echo $rows->invoice_code ?>').attr("disabled", true).css("cursor", "not-allowed").addClass('btn-success').removeClass('btn-primary');
+																													$("#save_<?php echo $rows->invoice_code ?>").html('Save')
+																													$("#insetrument_type_<?php echo $rows->invoice_code ?>").change("")
+																													$("#insetrument_no_<?php echo $rows->invoice_code ?>").val("")
+																													$("#datetime_<?php echo $rows->invoice_code ?>").val("<?php echo date('Y-m-d\TH:i') ?>")
+																													$("#mang_des_<?php echo $rows->invoice_code ?>").val("")
+																													$("#Amount_<?php echo $rows->invoice_code ?>").val("")
+																												},
+																												error: function(data, sts, errmsg) {
+																													$(".msg_div2").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>" + errmsg + "</div></div>");
+																												}
+																											});
+																										} else {
+																											$(".msg_div2").html('<div class="  col-lg-12 alert alert-danger" role="alert"> <button class="close "  data-dismiss="alert"></button><strong>Alert!: </strong> Bank ,Instrument no and amount is reuqired.</div>')
 																										}
-																									});
+																									} else {
+																										$.ajax({
+																											url: "<?php echo base_url(); ?>/invoice/receive_cash",
+																											type: "POST",
+																											data: mydata,
+																											beforeSend: function() {
+																												$(".msg_div2").html('<div class="  col-lg-12 alert alert-warnning" role="alert"> <button class="close "  data-dismiss="alert"></button><strong>Successfully!: </strong>please wait...</div>')
+																												$("#save_<?php echo $rows->invoice_code ?>").html('please wait...')
+																											},
+																											success: function(data) {
+																												// $('#edit_<?php echo $rows->acc_invoice_id ?>').modal('hide');
+																												$(".msg_div2").html(data);
+																												$('.edit_btn_<?php echo $rows->invoice_code ?>').attr("disabled", true).css("cursor", "not-allowed").addClass('btn-success').removeClass('btn-primary');
+																												$("#save_<?php echo $rows->invoice_code ?>").html('Save')
+																												$("#insetrument_type_<?php echo $rows->invoice_code ?>").change("")
+																												$("#insetrument_no_<?php echo $rows->invoice_code ?>").val("")
+																												$("#datetime_<?php echo $rows->invoice_code ?>").val("<?php echo date('Y-m-d\TH:i') ?>")
+																												$("#mang_des_<?php echo $rows->invoice_code ?>").val("")
+																												$("#Amount_<?php echo $rows->invoice_code ?>").val("")
+																											},
+																											error: function(data, sts, errmsg) {
+																												$(".msg_div2").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>" + errmsg + "</div></div>");
+																											}
+																										});
+																									}
+
 																								} else {
 																									// console.log("all * field is required");
 																									$(".msg_div2").html('<div class="  col-lg-12 alert alert-danger" role="alert"> <button class="close "  data-dismiss="alert"></button><strong>Alert!: </strong> * fileds is reuqired</div>')
 																								}
-																								setTimeout(() => {
-																									$(".msg_div2").html("")
-																								}, 1000);
+																								// setTimeout(() => {
+																								// 	$(".msg_div2").html("")
+																								// }, 1000);
 																							})
 																						</script>
 																					</div>
@@ -268,21 +301,15 @@ $this->load->view('inc/header');
 																</div>
 														<?php
 															//--------------------------
+															echo ("<td>" . $rows->customer_account_no . "</td>");
+															echo ("<td>" . $rows->customer_name . "</td>");
+															echo ("<td>" . number_format($rows->t_pcs) . "</td>");
+															echo ("<td>" . number_format($rows->t_wgt, 2) . "</td>");
 															echo ("<td><center>" . $rows->city_full_name . "</center></td>");
 															echo ("<td><center>" . $rows->invoice_code . "</center></td>");
-															echo ("<td><center>" . $rows->invoice_cn . "</center></td>");
-															echo ("<td>" . $rows->customer_name . "</td>");
-															echo ("<td>" . $rows->customer_account_no . "</td>");
-															if ($rows->invoice_permission == 1) {
-																echo ("<td class='bg-primary text-white text-center' style='box-shadow:5px 5px 10px #6d5eac;font-weight:600;font-size:13px;'>" . number_format($rows->invoice_osa + $rows->other_amount + $rows->invoice_gst + $rows->invoice_sc + $rows->invoice_osa_sd_total + $rows->fuel_surcharge + $rows->invoice_fuel + $row->others + $rows->invoice_faf - ($rows->discount_amount)) . "</td>");
-															} else {
-																echo ("<td class='bg-primary text-white text-center' style='box-shadow:5px 5px 10px #6d5eac;font-weight:600;font-size:13px;'>" . number_format($rows->invoice_osa + $rows->other_amount + $rows->invoice_sc + $rows->invoice_osa_sd_total +  $rows->fuel_surcharge + $rows->invoice_fuel + $row->others + $rows->invoice_faf - ($rows->discount_amount)) . "</td>");
-															}
-															$date = date_create($rows->invoice_date);
-															echo ("<td>" . date_format($date, "M-d-Y") . "</td>");
 															echo ("<td><center>" . number_format($rows->invoice_sc) . "</center></td>");
-															echo ("<td><center>" . number_format($rows->invoice_osa_sd_total + $rows->invoice_osa) . "</center></td>");
-															//--------------------------
+															echo ("<td><center>" . number_format($rows->invoice_fuel) . "</center></td>");
+															echo ("<td><center>" . number_format($rows->invoice_faf) . "</center></td>");
 															if ($rows->invoice_permission == 1) {
 																echo ("<td><center>" . number_format($rows->invoice_gst) . "</center></td>");
 															} else if ($rows->invoice_permission == "No") {
@@ -290,19 +317,22 @@ $this->load->view('inc/header');
 															} else {
 																echo ("<td><center>0</center></td>");
 															}
-															//--------------------------
-															echo ("<td><center>" . number_format($rows->invoice_fuel) . "</center></td>");
-															echo ("<td><center>" . number_format($rows->invoice_faf) . "</center></td>");
+															if ($rows->invoice_permission == 1) {
+																echo ("<td class='bg-primary text-white text-center' style='box-shadow:5px 5px 10px #6d5eac;font-weight:600;font-size:13px;'>" . number_format($rows->invoice_osa + $rows->other_amount + $rows->invoice_gst + $rows->invoice_sc + $rows->invoice_osa_sd_total + $rows->fuel_surcharge + $rows->invoice_fuel + $row->others + $rows->invoice_faf - ($rows->discount_amount)) . "</td>");
+															} else {
+																echo ("<td class='bg-primary text-white text-center' style='box-shadow:5px 5px 10px #6d5eac;font-weight:600;font-size:13px;'>" . number_format($rows->invoice_osa + $rows->other_amount + $rows->invoice_sc + $rows->invoice_osa_sd_total +  $rows->fuel_surcharge + $rows->invoice_fuel + $row->others + $rows->invoice_faf - ($rows->discount_amount)) . "</td>");
+															}
+															echo ("<td>" . $rows->reference_name . "</td>");
+															echo ("<td><center>" . $rows->invoice_cn . "</center></td>");
+															echo ("<td><center>" . number_format($rows->invoice_osa_sd_total + $rows->invoice_osa) . "</center></td>");
 															if ($rows->other_amount == 0) {
 																echo ("<td><center>" . number_format($rows->other_amount + $rows->invoice_others) . "</center></td>");
 															} else {
 																echo ("<td><center><b>" . $rows->other_name . "</b> " . number_format($rows->other_amount + $rows->invoice_others) . "</center></td>");
 															}
-															//--------------------------
 															echo ("<td><center>" . number_format($rows->discount_amount) . "</center></td>");
-															echo ("<td>" . number_format($rows->t_pcs) . "</td>");
-															echo ("<td>" . number_format($rows->t_wgt, 2) . "</td>");
-															echo ("<td>" . $rows->reference_name . "</td>");
+															$date = date_create($rows->invoice_date);
+															echo ("<td>" . date_format($date, "M-d-Y") . "</td>");
 															echo ("<td>" . $rows->oper_user_name . "</td>");
 															if ($_SESSION['user_id'] == "74" or $_SESSION['user_id'] == "90") {
 																echo ("<td><a href='" . base_url() . "Invoice/revert_invoice/" . $rows->invoice_code . "' class='btn btn-primary btn-xs'>Revert</a></td>");
@@ -338,11 +368,11 @@ $this->load->view('inc/header');
 		})
 
 		function data_array() {
-			var groupColumn = 7;
+			var groupColumn = 12;
 			var table = $('#myTable').DataTable({
 				"lengthMenu": [
-					[10, 25, 50, 100, -1],
-					[10, 25, 50, 100, "All"]
+					[25, 50, 100, -1],
+					[25, 50, 100, "All"]
 				],
 				"fixedHeader": true,
 				"searching": true,
@@ -393,9 +423,9 @@ $this->load->view('inc/header');
 					targets: groupColumn
 				}],
 				order: [
-					[groupColumn, 'asc']
+					[2, 'asc']
 				],
-				displayLength: 10,
+				displayLength: 25,
 				drawCallback: function(settings) {
 					var api = this.api();
 					var rows = api.rows({
@@ -414,6 +444,5 @@ $this->load->view('inc/header');
 						});
 				},
 			});
-			
 		}
 	</script>

@@ -91,7 +91,7 @@ $this->load->view('inc/header');
                                             <thead>
                                                 <tr>
                                               
-                                                    <th>Sr #</th>
+                                                    <th>Sr</th>
                                                     <th>Order Code</th>
                                                     <th>Manual CN</th>
                                                     <th>Origin </th>
@@ -115,11 +115,11 @@ $this->load->view('inc/header');
                                             </thead>
                                             <tbody>
                                                 <?php if (!empty($order_data)) {
-                                                    $i = 0;
+                                                    $i = 1;
                                                     foreach ($order_data as $rows) {
                                                         $i = $i + 1;
                                                         echo ("<tr>");
-                                                        echo ("<td>" . $i . "</td>");
+                                                        echo ("<td width='20px'>" . $i . "</td>");
                                                         echo ("<td>" . $rows->order_code . "</td>");
                                                         echo ("<td>" . $rows->manual_cn . "</td>");
                                                         echo ("<td>" . $rows->origin_city_name . "</td>");

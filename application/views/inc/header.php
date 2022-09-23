@@ -21,22 +21,17 @@
 	<link href="<?php echo base_url(); ?>assets/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 	<link href="<?php echo base_url(); ?>assets/plugins/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css" />
 	<link href="<?php echo base_url(); ?>assets/plugins/jquery-scrollbar/jquery.scrollbar.css" rel="stylesheet" type="text/css" media="screen" />
-
 	<script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
-
 	<link href="<?php echo base_url(); ?>assets/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" media="screen" />
 	<link href="<?php echo base_url(); ?>assets/plugins/switchery/css/switchery.min.css" rel="stylesheet" type="text/css" media="screen" />
 	<script src="<?php echo base_url(); ?>assets/plugins/jquery/jquery-3.2.1.min.js" type="text/javascript"></script>
-
 	<link href="<?php echo base_url(); ?>assets/pages/css/pages-icons.css" rel="stylesheet" type="text/css">
 	<link class="main-stylesheet" href="<?php echo base_url(); ?>assets/pages/css/themes/corporate.css" rel="stylesheet" type="text/css" />
 	<link rel="stylesheet" href="<?php echo base_url(); ?>assets/datatables.css">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.10/datepicker.min.js"></script>
 	<script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-
 	<style>
 		.themebtn {
-
 			background-image: linear-gradient(45deg, #6d5eac, #949AEF);
 			color: white;
 		}
@@ -57,7 +52,6 @@
 	<nav class="page-sidebar" data-pages="sidebar">
 		<!-- BEGIN SIDEBAR MENU TOP TRAY CONTENT-->
 		<div class="sidebar-overlay-slide from-top" id="appMenu">
-
 		</div>
 		<!-- END SIDEBAR MENU TOP TRAY CONTENT-->
 		<!-- BEGIN SIDEBAR MENU HEADER-->
@@ -74,10 +68,7 @@
 		<!-- START SIDEBAR MENU -->
 		<div class="sidebar-menu">
 			<!-- BEGIN SIDEBAR MENU ITEMS-->
-
 			<!------------------------Accounts Power Start-------------------------->
-
-
 			<ul class="menu-items">
 				<li class="m-t-30">
 					<a href="<?php echo base_url(); ?>home" class="detailed">
@@ -93,7 +84,6 @@
 					</a>
 					<span class="icon-thumbnail themebtn"><i class="pg-search"></i></span>
 				</li>
-
 				<li class="m-t-10">
 					<a href="javascript:;">
 						<span class="title">Booking</span>
@@ -113,7 +103,6 @@
 							<a href="<?php echo base_url(); ?>Booking/Booking/reconcile_cash_booking">Reconcile Cash Booking</a>
 							<span class="icon-thumbnail">SLB</span>
 						</li>
-
 						<li class="">
 							<a href="<?php echo base_url(); ?>Booking/Booking/cash_booking_report">Cash Booking Report</a>
 							<span class="icon-thumbnail">CBR</span>
@@ -154,7 +143,6 @@
 							</li>
 						</ul>
 					</li>
-
 					<li class="m-t-10">
 						<a href="javascript:;">
 							<span class="title">Invoice</span>
@@ -162,7 +150,6 @@
 						</a>
 						<span class="bg-success icon-thumbnail themebtn"><i class="pg-signals"></i></span>
 						<ul class="sub-menu">
-
 							<li class="">
 								<a href="<?php echo base_url(); ?>Invoice">Manage Invoice</a>
 								<span class="icon-thumbnail">INV</span>
@@ -192,15 +179,12 @@
 							</a>
 							<span class="bg-success icon-thumbnail themebtn"><i class="pg-calender"></i></span>
 							<ul class="sub-menu">
-							
 							<li class="">
 							<a href="<?php echo base_url(); ?>invoices/create_invoice">(BETA)Create Invoices</a>
 							<span class="icon-thumbnail">CIN</span>
 							</li>
 						</ul>
 						</li>-->
-
-				
 					<li class="m-t-10">
 						<a href="javascript:;">
 							<span class="title">Customer Account</span>
@@ -208,7 +192,6 @@
 						</a>
 						<span class="bg-success icon-thumbnail themebtn"><i class="pg-bag"></i></span>
 						<ul class="sub-menu">
-
 							<li class="">
 								<a href="<?php echo base_url(); ?>Customer">Manage Customer Accounts</a>
 								<span class="icon-thumbnail">MCA</span>
@@ -225,9 +208,17 @@
 								<a href="<?php echo base_url(); ?>Invoice/fetch_record">Customer Ledger</a>
 								<span class="icon-thumbnail">CRL</span>
 							</li>
+
+							<li class="">
+								<a href="<?php echo base_url(); ?>Invoice/client_activity_report">Client Activity Report</a>
+								<span class="icon-thumbnail">CRL</span>
+							</li>
+							<li class="">
+								<a href="<?php echo base_url(); ?>report/customer_aging_report">Customer Aging Report</a>
+								<span class="icon-thumbnail">CRL</span>
+							</li>
 						</ul>
 					</li>
-
 					<li class="m-t-10">
 						<a href="javascript:;">
 							<span class="title">Upload Image</span>
@@ -245,7 +236,6 @@
 							</li>
 						</ul>
 					</li>
-
 					<li class="m-t-10">
 						<a href="javascript:;">
 							<span class="title">Franchisee Account</span>
@@ -253,17 +243,13 @@
 						</a>
 						<span class="bg-success icon-thumbnail themebtn"><i class="pg-bag"></i></span>
 						<ul class="sub-menu">
-
 							<li class="">
 								<a href="<?php echo base_url(); ?>Franchisee">Manage Franchisee Accounts</a>
 								<span class="icon-thumbnail">MFA</span>
 							</li>
-
 						</ul>
 					</li>
-
 				<?php } ?>
-
 				<li class="m-t-10">
 					<a href="javascript:;">
 						<span class="title">CN Book</span>
@@ -275,14 +261,12 @@
 							<a href="<?php echo base_url(); ?>CnBook/default_load">CN Book</a>
 							<span class="icon-thumbnail">CNB</span>
 						</li>
-
 						<li class="">
 							<a href="<?php echo base_url(); ?>Rider">Add Rider</a>
 							<span class="icon-thumbnail">ARD</span>
 						</li>
 					</ul>
 				</li>
-
 				<li class="m-t-10">
 					<a href="javascript:;">
 						<span class="title">Tools</span>
@@ -297,13 +281,12 @@
 							</li>
 							<li class="">
 								<a href="<?php echo base_url(); ?>customer/add_customer_user"><a>Add Customer User</a>
-								<span class="icon-thumbnail">CRL</span>
+									<span class="icon-thumbnail">CRL</span>
 							</li>
 							<li class="">
 								<a href="<?php echo base_url(); ?>Route">Route</a>
 								<span class="icon-thumbnail">MR</span>
 							</li>
-
 							<li class="">
 								<a href="<?php echo base_url(); ?>Direct/cs_index">Power Tools</a>
 								<span class="icon-thumbnail">TOL</span>
@@ -321,8 +304,6 @@
 				</li>
 			</ul>
 			<!---Accounts Powers ---->
-
-
 			<div class="clearfix"></div>
 		</div>
 		<!-- END SIDEBAR MENU -->
@@ -342,8 +323,6 @@
 				<div class="brand inline  m-l-10 ">
 					<img src="<?php echo base_url(); ?>assets/img/tmlogo1.png" alt="logo" data-src="<?php echo base_url(); ?>assets/img/tmlogo1.png" data-src-retina="<?php echo base_url(); ?>assets/img/tmlogo1.png" width="120" height="80">
 				</div>
-
-
 			</div>
 			<div class="d-flex align-items-center">
 				<!-- START User Info-->
@@ -365,7 +344,6 @@
 					</div>
 				</div>
 				<!-- END User Info-->
-
 			</div>
 		</div>
 		<!-- END HEADER -->

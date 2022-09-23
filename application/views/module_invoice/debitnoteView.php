@@ -55,7 +55,7 @@ $this->load->view('inc/header');
                                         <div class="form-group-attached">
                                             <!-- <form action="" id="form"> -->
                                             <div class="row clearfix">
-                                                <div class="col-sm-10">
+                                                <div class="col-sm-5">
                                                     <div class="form-group form-group-default required">
                                                         <select class="form-control" id="reason" tabindex=2 style="width:100% !important ;">
                                                             <option value="" selected>Select Debit Note Reason </option>
@@ -65,7 +65,7 @@ $this->load->view('inc/header');
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class=" col-sm-2">
+                                                <div class=" col-sm-3">
                                                     <button type="submit" class="btn btn-primary" onclick="create_debit_note()" id="btnvrnote" style="height:100%">Create Debit Note</button>
                                                 </div>
                                                 <!-- </form> -->
@@ -153,6 +153,7 @@ $this->load->view('inc/header');
             $("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-warning'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Please Wait .</div></div>");
             if (invoice_id_string != "") {
                 if ($('#reason').val() != "") {
+                    event.preventDefault()
                     $.ajax({
                         url: "<?php echo base_url(); ?>Invoice/insert_debit_note",
                         type: "POST",
@@ -165,22 +166,22 @@ $this->load->view('inc/header');
                         },
                         success: function(data) {
                             $("#msg_div").html(data);
-                            setTimeout(function() {
+                             setTimeout(function() {
                                 location.reload();
-                            }, 1000);
+                            }, 1000); 
                         },
                         error: function(error) {
-                            $("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Already  credit note is created on these CNs ..</div></div>");
+                            $("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Already debit note is created on these CNs ..</div></div>");
                         },
                     });
                 } else {
                     $('#form').submit(function(event) {
                         event.preventDefault()
                     })
-                    $("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Minimum one reason  is required to create credit note.</div></div>");
+                    $("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Minimum one reason  is required to create debit note.</div></div>");
                 }
             } else {
-                $("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Minimum one record is required to create credit note.</div></div>");
+                $("#msg_div").html("<div class='pgn push-on-sidebar-open pgn-bar'><div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'><span aria-hidden='true'>×</span><span class='sr-only'>Close</span></button>Minimum one record is required to create debit note.</div></div>");
             }
         }
     </script>
@@ -193,8 +194,8 @@ $this->load->view('inc/header');
             });
             var table = $('#myTable').DataTable({
                 "lengthMenu": [
-                    [20, 50, -1],
-                    [20, 50, 'All']
+                    [-1],
+                    ['All']
                 ],
                 fixedHeader: true,
                 "searching": true,

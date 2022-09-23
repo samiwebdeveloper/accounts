@@ -1,9 +1,28 @@
 <?php
 class Invoicemodel extends CI_Model
 {
+	public function get_clients_activity_record($booking_date_1, $booking_date_2, $customer, $origin)
+	{
+		$query = "SELECT IF( cl_instrument_type IN('Invoice', 'Debit Note'), cl_amount, 0 ) AS debit, IF( cl_instrument_type IN( 'Credit Note', 'Cash', 'Cheque', 'GST Tax', 'income Tax ' ), cl_amount, 0 ) AS credit, l.*, c.customer_name, c.customer_city, i.invoice_code FROM `customer_ledger` l left join acc_invoice i on i.acc_invoice_id = l.invoice_id LEFT JOIN acc_customers c ON l.cl_customer_id = c.customer_id LEFT JOIN acc_references r ON l.cl_sale_person = r.reference_name LEFT JOIN acc_user u ON l.cl_created_by = u.oper_user_name  ";
+		$date_filter = " where date(l.cl_created_date) between '" . $booking_date_1 . "' and '" . $booking_date_2 . "'";
+		strlen($booking_date_1) > 0 ? $query .= $date_filter : "";
+		strlen($customer) > 0 ? $query .= " AND l.cl_customer_id = " . $customer : "";
+		strlen($origin) > 0 ? $query .= " AND customer_city = " . $origin : "";
+		$query .= " order by l.invoice_id ";
+		$res = $this->db->query($query);
+		return $res->result();
+	}
+	public function get_ledger_start_and_end_date()
+	{
+		return $this->db->query("SELECT date(min(cl_created_date)) start_date, date(max(cl_created_date)) end_date FROM `customer_ledger`")->result();
+	}
 	public function get_invoice_cr($invoice_code)
 	{
-	    return $this->db->query("SELECT d.* FROM `cr_note_detail` d JOIN `cr_note` c on c.`crn_id` = d.`crn_id` JOIN `acc_invoice` i on i.acc_invoice_id = c.`invoice_id` where i.`invoice_code` = '".$invoice_code."'")->result();
+		return $this->db->query("SELECT d.* FROM `cr_note_detail` d JOIN `cr_note` c on c.`crn_id` = d.`crn_id` JOIN `acc_invoice` i on i.acc_invoice_id = c.`invoice_id` where i.`invoice_code` = '" . $invoice_code . "'")->result();
+	}
+	public function get_invoice_deb($invoice_code)
+	{
+		return $this->db->query("SELECT d.* FROM `debit_note_detail` d JOIN `debit_note` c on c.`debit_id` = d.`debit_id` JOIN `acc_invoice` i on i.acc_invoice_id = c.`invoice_id` where i.`invoice_code` = '" . $invoice_code . "'")->result();
 	}
 	public function get_invoices_details($invoice_id)
 	{
@@ -18,28 +37,28 @@ class Invoicemodel extends CI_Model
 	{
 		return $this->db->query("SELECT * FROM `acc_invoice_detail` WHERE `acc_invoice_detail_id` IN($invoice_id)")->result();
 	}
-		public function get_order_details($first_day,$last_day,$customer_id)
+	public function get_order_details($first_day, $last_day, $customer_id)
 	{
 		return  $this->db->query("SELECT `order_osa_sd_total`,`order_rate`,`order_sc`,`order_osa`,`order_others`,`order_fuel`,`order_gst`,`order_faf`,
 		o.`order_id`, o.`customer_id`, o.`order_code`, o.`manual_cn`, o.`destination_city_name`, o.`origin_city_name`, o.`order_service_type`,
 		DATE(order_date) AS order_date, o.`weight`, o.`pieces`, o.`cod_amount`, o.`consignee_name`, o.`order_pay_mode`, o.`shipper_name` 
 		FROM acc_orders o WHERE date(`order_date`) BETWEEN '$first_day' and '$last_day' AND `is_invoice`=0 AND 
-		`order_pay_mode` IN('account', 'Account') and customer_id='$customer_id'")->result();
+		`order_pay_mode` IN('account', 'Account') and customer_id=$customer_id")->result();
 	}
-		public function get_order_code_details($order_code)
+	public function get_order_code_details($order_code)
 	{
 		return  $this->db->query("SELECT cod_amount,`order_osa_sd_total`,`order_rate`,`order_sc`,`order_osa`,`order_others`,`order_fuel`,`order_gst`,
 		`order_faf`, o.`order_id`, o.`customer_id`, o.`order_code`, o.`manual_cn`, o.`destination_city_name`, o.`origin_city_name`, o.`order_service_type`,
 		 DATE(order_date) AS order_date, o.`weight`, o.`pieces`, o.`cod_amount`, o.`consignee_name`, o.`order_pay_mode`, o.`shipper_name`
 		FROM acc_orders o WHERE  o.`order_code` IN($order_code)")->result();
 	}
-	public function insert_debit_invoice_details($order_code,$id)
+	public function insert_debit_invoice_details($order_code, $id)
 	{
-		$date="'".date('Y-m-d H:i:s')."'";
-		$query="INSERT INTO `debit_note_detail`(`debit_id`, `debit_cn`, `debit_manual_cn`,`debit_origin`, `debit_destination`, `debit_consignee`, `debit_pcs`, `debit_weight`, `debit_sc`, `debit_osa_sd`, `debit_osa`, `debit_fuel`, `debit_others`, `debit_gst`, `debit_faf`,`fod`, `debit_serivce_name`, `created_by`, `created_date`) 
-		SELECT $id, `order_code`, `manual_cn`, `origin_city_name`, `destination_city_name`, `consignee_name`, `pieces`, `weight`, `order_sc`, `order_osa_sd_total`, `order_osa`, `order_fuel`, `order_others`, `order_gst`, `order_faf`,`fod`, `order_service_type`,".$_SESSION['user_id'].",".$date." FROM `acc_orders` where order_code IN($order_code)";
+		$date = "'" . date('Y-m-d H:i:s') . "'";
+		$query = "INSERT INTO `debit_note_detail`(`debit_id`, `debit_cn`, `debit_manual_cn`,`cn_date`,`debit_origin`, `debit_destination`, `debit_consignee`, `debit_pcs`, `debit_weight`, `debit_sc`, `debit_osa_sd`, `debit_osa`, `debit_fuel`, `debit_others`, `debit_gst`, `debit_faf`,`cod_amount`, `debit_serivce_name`, `created_by`, `created_date`) 
+		SELECT $id, `order_code`, `manual_cn`,date(`order_date`), `origin_city_name`, `destination_city_name`, `consignee_name`, `pieces`, `weight`, `order_sc`, `order_osa_sd_total`, `order_osa`, `order_fuel`, `order_others`, `order_gst`, `order_faf`,`cod_amount`, `order_service_type`," . $_SESSION['user_id'] . "," . $date . " FROM `acc_orders` where order_code IN($order_code)";
 		$this->db->query($query);
-		return  $this->db->insert_id();  
+		return  $this->db->insert_id();
 	}
 	public function get_id($invoice_no)
 	{
@@ -49,9 +68,9 @@ class Invoicemodel extends CI_Model
 	{
 		return  $this->db->query("SELECT `customer_id` FROM `acc_invoice` WHERE acc_invoice_id='$invoice_id'")->row()->customer_id;
 	}
-    public function get_account_type($cid)
+	public function get_account_type($cid)
 	{
-		return  $this->db->query("SELECT `account_type` FROM `acc_customers` WHERE customer_id = ".$cid.";")->row()->account_type;
+		return  $this->db->query("SELECT `account_type` FROM `acc_customers` WHERE customer_id = " . $cid . ";")->row()->account_type;
 	}
 	public function get_referBY_id($customer_id)
 	{
@@ -61,20 +80,20 @@ class Invoicemodel extends CI_Model
 	{
 		return  $this->db->query("SELECT cl_outstanding_amount FROM  customer_ledger where cl_customer_id ='$customer_id' order by cl_id desc limit 1")->row();
 	}
-	public function fetch_record($start_date,$end_date,$o_city)
+	public function fetch_record($start_date, $end_date, $o_city)
 	{
-		if ($o_city =="") {
-		 	$query = "SELECT `cl_id`, `cl_instrument_type`, `cl_instrument_no`,(SELECT customer_name from acc_customers where acc_customers.customer_id=cl_customer_id) as cusomter_name, `cl_amount`, `cl_outstanding_amount`, (SELECT `reference_name` FROM `acc_references` WHERE `reference_id`=cl_sale_person) as sale_person, `cl_created_by`, date(cl_created_date) as created_date,(SELECT oper_user_name from acc_user where acc_user.oper_user_id=cl_created_by) as ops_name from customer_ledger where   date(cl_created_date) between '$start_date' And '$end_date' order by cl_created_date desc";
+		if ($o_city == "") {
+			$query = "SELECT `cl_id`, `cl_instrument_type`, `cl_instrument_no`,(SELECT customer_name from acc_customers where acc_customers.customer_id=cl_customer_id) as cusomter_name, `cl_amount`, `cl_outstanding_amount`, (SELECT `reference_name` FROM `acc_references` WHERE `reference_id`=cl_sale_person) as sale_person, `cl_created_by`,cl_bank,cl_remarks,cl_income_tax,cl_sales_tax, cl_created_date as created_date,(SELECT oper_user_name from acc_user where acc_user.oper_user_id=cl_created_by) as ops_name from customer_ledger where   date(cl_created_date) between '$start_date' And '$end_date' order by cusomter_name ";
 		} else {
-			$query = "SELECT `cl_id`, `cl_instrument_type`, `cl_instrument_no`,(SELECT customer_name from acc_customers where acc_customers.customer_id=cl_customer_id) as cusomter_name, `cl_amount`, `cl_outstanding_amount`, (SELECT `reference_name` FROM `acc_references` WHERE `reference_id`=cl_sale_person) as sale_person, `cl_created_by`, date(cl_created_date) as created_date,(SELECT oper_user_name from acc_user where acc_user.oper_user_id=cl_created_by) as ops_name from customer_ledger where cl_customer_id='$o_city' and  date(cl_created_date)  between '$start_date' And '$end_date' order by cl_created_date desc";
+			$query = "SELECT `cl_id`, `cl_instrument_type`, `cl_instrument_no`,(SELECT customer_name from acc_customers where acc_customers.customer_id=cl_customer_id) as cusomter_name, `cl_amount`, `cl_outstanding_amount`, (SELECT `reference_name` FROM `acc_references` WHERE `reference_id`=cl_sale_person) as sale_person, `cl_created_by`,cl_bank,cl_remarks,cl_income_tax,cl_sales_tax, cl_created_date as created_date,(SELECT oper_user_name from acc_user where acc_user.oper_user_id=cl_created_by) as ops_name from customer_ledger where cl_customer_id='$o_city' and  date(cl_created_date)  between '$start_date' And '$end_date' order by cusomter_name";
 		}
 		$res = $this->db->query($query);
 		return $res->result();
 	}
-	public function insert_invoice_details($invoice_ids,$crn_id)
+	public function insert_invoice_details($invoice_ids, $crn_id, $user_id, $crn_date)
 	{
-	 	$query="INSERT INTO `cr_note_detail`(`crn_id`, `crn_cn`, `crn_manual_cn`,`crn_origin`, `crn_destination`, `crn_consignee`, `crn_pcs`, `crn_weight`, `crn_sc`, `crn_osa_sd`, `crn_osa`, `crn_fuel`, `crn_others`, `crn_gst`, `crn_faf`,fod, `crn_serivce_name`, `created_by`, `created_date`) 
-		SELECT  $crn_id, `cn`, `manual_cn`, `origin`, `destination_name`, `consignee_detail`, `pcs`, `weight`, `sc`, `osa_sd`, `osa`, `fuel`, `others`, `gst`, `faf`, fod, `serivce_name`,`created_by`, `created_date` FROM `acc_invoice_detail` where acc_invoice_detail_id IN($invoice_ids) ";
+		$query = "INSERT INTO `cr_note_detail`(`crn_id`, `crn_cn`, `crn_manual_cn`,`cn_date`, `crn_origin`, `crn_destination`, `crn_consignee`, `crn_pcs`, `crn_weight`, `crn_sc`, `crn_osa_sd`, `crn_osa`, `crn_fuel`, `crn_others`, `crn_gst`, `crn_faf`,fod, `crn_serivce_name`, `created_by`, `created_date`) 
+		SELECT  $crn_id, `cn`, `manual_cn`, date, `origin`, `destination_name`, `consignee_detail`, `pcs`, `weight`, `sc`, `osa_sd`, `osa`, `fuel`, `others`, `gst`, `faf`, fod, `serivce_name`,$user_id,'$crn_date' FROM `acc_invoice_detail` where acc_invoice_detail_id IN($invoice_ids) ";
 		$this->db->query($query);
 		return  $this->db->insert_id();
 	}
@@ -94,7 +113,7 @@ class Invoicemodel extends CI_Model
 			LEFT JOIN `acc_references` on `acc_references`.`reference_id` = `acc_customers`.`reference_by`
 			WHERE  date(`invoice_date`) between ? and ?
             group by `acc_invoice_id`
-             ORDER BY `invoice_date` DESC";	
+             ORDER BY `invoice_date` DESC;";
 		$res = $this->db->query($query, array($startdate, $enddate));
 		return $res->result();
 	}
@@ -117,7 +136,7 @@ class Invoicemodel extends CI_Model
 			WHERE  date(`invoice_date`) between ? and ?
 			AND `mixture` in (?)
             group by `acc_invoice_id`
-             ORDER BY `invoice_date` DESC;";	
+             ORDER BY `invoice_date` DESC;";
 		$res = $this->db->query($query, array($startdate, $enddate, str_replace(",", "','", $mixture)));
 		return $res->result();
 	}
@@ -293,19 +312,19 @@ class Invoicemodel extends CI_Model
 	public function Revert_Invoice($invoice_code)
 	{
 		$this->db->trans_start();
-		$query = "UPDATE `acc_orders` SET `invoice_id` = '', `is_invoice` = 0, modify_by = ". $_SESSION['user_id'] .", modify_date = '". date('Y-m-d H:i:s') ."', session = '". session_id() ."' WHERE `invoice_id` = '" . $invoice_code . "';";
+		$query = "UPDATE `acc_orders` SET `invoice_id` = '', `is_invoice` = 0, modify_by = " . $_SESSION['user_id'] . ", modify_date = '" . date('Y-m-d H:i:s') . "', session = '" . session_id() . "' WHERE `invoice_id` = '" . $invoice_code . "';";
 		$this->db->query($query);
 		$query = "INSERT INTO `acc_del_invoice_detail` (SELECT * FROM `acc_invoice_detail` WHERE `invoice_id` = (SELECT acc_invoice_id FROM `acc_invoice` WHERE `invoice_code` = '" . $invoice_code . "'));";
 		$this->db->query($query);
 		$query = "INSERT INTO `acc_del_invoice` (SELECT * FROM `acc_invoice` WHERE `invoice_code` = '" . $invoice_code . "');";
 		$this->db->query($query);
-		$query = "UPDATE `acc_del_invoice` SET modify_by = ". $_SESSION['user_id'] .", modify_date = '". date('Y-m-d H:i:s') ."' WHERE `invoice_code` = '" . $invoice_code . "';";
+		$query = "UPDATE `acc_del_invoice` SET modify_by = " . $_SESSION['user_id'] . ", modify_date = '" . date('Y-m-d H:i:s') . "' WHERE `invoice_code` = '" . $invoice_code . "';";
 		$this->db->query($query);
 		$query = "DELETE FROM `acc_invoice_detail` WHERE `invoice_id` = (SELECT acc_invoice_id FROM `acc_invoice` WHERE `invoice_code` = '" . $invoice_code . "');";
 		$this->db->query($query);
 		$query = "DELETE FROM `acc_invoice` WHERE `invoice_code` = '" . $invoice_code . "';";
 		$this->db->query($query);
-		$query = "DELETE FROM `customer_ledger` WHERE `cl_instrument_type` = 'Invoice' AND `cl_instrument_no` = '". $invoice_code ."';";
+		$query = "DELETE FROM `customer_ledger` WHERE `cl_instrument_type` = 'Invoice' AND `cl_instrument_no` = '" . $invoice_code . "';";
 		$this->db->query($query);
 		$this->db->trans_complete();
 	}
