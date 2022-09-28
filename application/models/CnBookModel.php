@@ -74,8 +74,9 @@ class CnBookModel extends CI_Model
     public function issue_book($tablename, $origin_id)
     {
         $query = $this->db->query("SELECT * from $tablename where book_status='Is Issued' And book_origin='$origin_id' and modified_by ='Null'");
-        return $query->result();
+        return $query->result_array();
     }
+   
     public function get_cn($id)
     {
         $this->db->select('book_start_cn,book_end_cn');

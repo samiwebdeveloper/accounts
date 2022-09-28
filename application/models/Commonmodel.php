@@ -184,7 +184,7 @@ class Commonmodel extends CI_Model
 	{
 		$this->check_session();
 		$query = $this->db->get($tablename);
-		return $query->result();
+		return $query->result_array();
 	}
 
 	public function Get_record_by_condition($tablename, $columnname, $conditionvalue)
@@ -293,7 +293,7 @@ class Commonmodel extends CI_Model
 		if ($query_data != "") {
 			$query = $query_data;
 			$res = $this->db->query($query);
-			return $res->result();
+			return $res->result_array();
 		}
 	}
 

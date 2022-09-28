@@ -53,7 +53,8 @@
     <script src="<?php echo base_url();?>assets/pages/js/pages.min.js" type="text/javascript"></script>
     <!-- END CORE TEMPLATE JS -->
     <!-- BEGIN PAGE LEVEL JS -->
-               <!--  <script src="<?php echo base_url();?>assets/plugins/charts.js" type="text/javascript"></script>-->
+    <script src="<?php echo base_url();?>assets/plugins/plugins/lineWithFocusChart.js" type="text/javascript"></script>
+    <script src="<?php echo base_url();?>assets/plugins/charts.js" type="text/javascript"></script>
     <script src="<?php echo base_url();?>assets/js/scripts.js" type="text/javascript"></script>
 
     <!-- END PAGE LEVEL JS -->

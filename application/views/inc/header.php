@@ -217,6 +217,10 @@
 								<a href="<?php echo base_url(); ?>report/customer_aging_report">Customer Aging Report</a>
 								<span class="icon-thumbnail">CRL</span>
 							</li>
+							<li class="">
+								<a href="<?php echo base_url(); ?>report/overnight_manifested">ONT Manifested Report</a>
+								<span class="icon-thumbnail">CRL</span>
+							</li>
 						</ul>
 					</li>
 					<li class="m-t-10">

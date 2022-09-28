@@ -89,6 +89,7 @@ $this->load->view('inc/header');
         background-color: #ddd !important;
     }
 </style>
+
 <div class="page-content-wrapper">
     <!-- START PAGE CONTENT -->
     <div class="content">

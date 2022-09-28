@@ -6,6 +6,7 @@ class CnBook extends CI_Controller
     {
         parent::__construct();
         $this->load->model('CnBookModel');
+        $this->load->model('Commonmodel');
     }
     
     // fetch_cn book detail
@@ -26,6 +27,27 @@ class CnBook extends CI_Controller
         $data['detail']  = $this->CnBookModel->total_cn_range($book_code);
         $this->load->view('cs_book_detail_view', $data);
     }
+    public function ExportFile($records)
+    {
+        $heading = false;
+        if (!empty($records))
+            foreach ($records as $row) {
+                if (!$heading) {
+                    echo implode("\t", array_keys($row)) . "\n";
+                    $heading = true;
+                }
+                echo implode("\t", array_values($row)) . "\n";
+            }
+            // exit;k
+    }
+    public function convert_array_to_excel()
+    {
+        $raw_query = $this->Commonmodel->Raw_Query_Execution('select * from acc_orders limit 0,50000');
+        $filename = "cn_boook_record_" . date('Y-m-d') . ".xls";
+        header("Content-Type: application/vnd.ms-xls");
+        header("Content-Disposition: attachment; filename=\"$filename\"");
+        CnBook::ExportFile($raw_query);
+    }
 
     public function default_load()
     {
@@ -40,6 +62,7 @@ class CnBook extends CI_Controller
         // $cn_boook_record['cn_missing']        = $this->CnBookModel->cn_missing($_SESSION['origin_id']);
         // // $cn_boook_record['result_rider']      = $this->CnBookModel->display_rider();
         // $cn_boook_record['result_route']      = $this->CnBookModel->display_route();
+        
         $this->load->view('cnbookView');
     }
 
